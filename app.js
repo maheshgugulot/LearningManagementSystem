@@ -77,13 +77,14 @@ app.get("/chapter/new",(req,res)=>{
 app.post("/course",async (request,response)=>{
     console.log( "the title is " + request.body)
     try{
+        const allChapter = await Chapter.getChapter();
         const course=await Course.addCourse(
             {
                 title : request.body.title
             }
         )
         console.log("the course is "+ course)
-        response.render("course-chapter",{"Course":course});
+        response.render("course-chapter",{"Course":course,"allChapter":allChapter});
     }
     catch(error){
         console.log(error)
