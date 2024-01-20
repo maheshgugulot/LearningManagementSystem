@@ -21,6 +21,9 @@ module.exports = (sequelize, DataTypes) => {
         CourseId
       })
     }
+    static getChapter(){
+      return this.findAll();
+    }
   }
   Chapter.init({
     title: DataTypes.STRING,

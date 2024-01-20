@@ -17,7 +17,13 @@ module.exports = (sequelize, DataTypes) => {
       title : title
     })
   }
+  static getCourse(){
+    return this.findAll();
   }
+  static findById(courseId) {
+    return this.findByPk(courseId);
+  }
+}
   Course.init({
     title: DataTypes.STRING
   }, {
