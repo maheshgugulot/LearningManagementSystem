@@ -10,8 +10,13 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
-    }
+      Course.hasMany(models.Chapter);
+   }
+   static addCourse({title}){
+    return this.create({
+      title : title
+    })
+  }
   }
   Course.init({
     title: DataTypes.STRING

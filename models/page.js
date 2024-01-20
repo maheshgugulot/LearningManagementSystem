@@ -10,10 +10,20 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      Page.belongsTo(models.Chapter);
       // define association here
     }
+    static addPage({content,completed,ChapterId}){
+      return this.create({
+        content,
+        completed,
+        ChapterId
+      })
+    
   }
+}
   Page.init({
+    content: DataTypes.STRING, 
     completed: DataTypes.BOOLEAN,
     ChapterId: DataTypes.INTEGER
   }, {
