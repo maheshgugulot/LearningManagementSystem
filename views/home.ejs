@@ -4,6 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script>
+        function updateEnroll(id,enroll) {
+            console.log(enroll)
+            fetch(`/enroll/${id}`, {
+                method: "put",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    enroll: !enroll
+                })
+            })
+                .then((res) => {
+                    if (res.ok) {
+                        window.location.reload();
+                    }
+                })
+                .catch((err) => console.error(err));
+        }
+        
+        function viewCourse() {
+            window.location.href = "/mycourse";
+    }
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
@@ -16,9 +38,10 @@
                   Create New Course
                 </button>
             </a>          
-            <button type="button" class="mb-2 px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
-              My courses
+            <button type="button" onclick="viewCourse()" class="mb-2 px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
+                My courses
             </button>
+            
             <button type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
               View reports
             </button>
@@ -30,25 +53,23 @@
                     <!-- <img src="https://via.placeholder.com/150" alt="Course Image" class="w-full h-40 object-cover"> -->
                     <div class="p-4">
                         <h2 class="text-lg font-semibold mb-2"><%= course.dataValues.title %></h2>
-
-                        <% let firstThreeChapters = allChapter.slice(0, 3); %>
-                        
-                        <% firstThreeChapters.forEach(chapter => { %>
-                          <% if (chapter.CourseId === course.id) { %>
-                            <li class="text-gray-600 mb-4"><%= chapter.dataValues.title %></li>
-                          <% } %>
+                        <% let chapterCount = 0; %>
+                        <% allChapter.forEach(chapter => { %>
+                            <% if (chapter.CourseId === course.id && chapterCount < 2) { %>
+                                <li class="text-gray-600 mb-4"><%= chapter.dataValues.title %></li>
+                                <% chapterCount++; %>
+                            <% } %>
                         <% }); %>
                         
                         <div class="flex space-x-4">
                           <a href="/viewcourse/<%= course.dataValues.id %>" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300">
                             View Course
                         </a>
-                        
-                        
-                            <button class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring focus:border-green-300">
-                                Enroll
-                            </button>
+                        <button id="enroll-button-<%= course.dataValues.id %>" <%= course.dataValues.enroll ? "true" : "false" %> onclick="updateEnroll(<%= course.dataValues.id %>,<%= course.dataValues.enroll %>)" class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring focus:border-green-300">
+                            <%= course.dataValues.enroll ? "Enrolled" : "Enroll" %>
+                        </button>                        
                         </div>
+
                     </div>
                 </div>
             <% }) %>

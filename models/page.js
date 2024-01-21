@@ -16,11 +16,14 @@ module.exports = (sequelize, DataTypes) => {
     static addPage({content,completed,ChapterId}){
       return this.create({
         content,
-        completed,
+        completed : false,
         ChapterId
       })
-    
-  }
+    }
+    static getPage(){
+      return this.findAll();
+
+    }
 }
   Page.init({
     content: DataTypes.STRING, 

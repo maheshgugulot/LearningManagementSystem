@@ -14,18 +14,27 @@ module.exports = (sequelize, DataTypes) => {
    }
    static addCourse({title}){
     return this.create({
-      title : title
+      title ,
+      enroll : false
     })
   }
   static getCourse(){
     return this.findAll();
+  }
+  static getMyCourse(){
+    return this.findAll({
+      where:{
+        enroll:true
+      }
+    });
   }
   static findById(courseId) {
     return this.findByPk(courseId);
   }
 }
   Course.init({
-    title: DataTypes.STRING
+    title: DataTypes.STRING,
+    enroll : DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'Course',

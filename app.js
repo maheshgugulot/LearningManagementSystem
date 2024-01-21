@@ -6,6 +6,61 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 const {Course,Chapter,Page} = require("./models");
 app.use(express.urlencoded({ extended: true })); 
+app.get("/mycourse",async(req,res)=>{
+    try{
+        const allCourse = await Course.getMyCourse(); 
+        const allChapter =await Chapter.getChapter(); 
+        if(req.accepts("html")){
+        return res.render("mycourse",{allCourse,allChapter});
+        }
+        else{
+            return res.json(allCourse)
+        }
+    }catch(err){
+        console.log(err);
+        return res.status(422).json(err)
+    }
+})
+app.put("/enroll/:id", async (req, res) => {
+    try {
+        const courseEnroll = await Course.findByPk(req.params.id);
+        if (!courseEnroll) {
+            return res.status(404).json({ error: "Course not found" });
+        }
+
+        // Update the enroll status for the specific course ID
+        const updateEnroll = await Course.update(
+            { enroll: !courseEnroll.enroll },
+            { where: { id: req.params.id } }
+        );
+
+        return res.json(updateEnroll);
+    } catch (err) {
+        console.log(err);
+        return res.status(422).json(err);
+    }
+});
+app.put("/markAsComplete/:id", async (req, res) => {
+    try {
+        const pageMarkAsComplete = await Page.findByPk(req.params.id);
+        console.log("boolean value of page "+ pageMarkAsComplete.completed)
+        if (!pageMarkAsComplete) {
+            return res.status(404).json({ error: "page not found" });
+        }
+        
+        const PageMarkAsComplete = await Page.update(
+            { completed: !pageMarkAsComplete.completed },
+            { where: { id: req.params.id } }
+            );
+            
+            console.log("After boolean value of page "+ PageMarkAsComplete.completed)
+        return res.json(PageMarkAsComplete);
+    } catch (err) {
+        console.log(err);
+        return res.status(422).json(err);
+    }
+});
+
 app.get("/",async(req,res)=>{
     try{
         const allCourse = await Course.getCourse();
@@ -30,14 +85,26 @@ app.post("/chapter",async (request,response)=>{
                 description : request.body.description,
                 CourseId : request.query.CourseId
             }
-        )
-        response.render("chapter-page",{"ChapterId":chapter.id});
-    }
-    catch(error){
-        console.log(error)
-        return response.status(422).json(error)
+            )
+            response.render("chapter-page",{"ChapterId":chapter.id,allPage});
+        }
+        catch(error){
+            console.log(error)
+            return response.status(422).json(error)
+        }
+    })
+    
+app.get("/chapter-page",async(req,res)=>{
+        try{
+            console.log( "the title is " + req.query.ChapterId)
+            const allPage=await Page.getPage();
+            res.render("chapter-page",{"ChapterId":req.query.ChapterId,allPage});
+    }catch(err){
+        console.log(err)
+        return res.status(422).json(err)
     }
 })
+
 app.get("/course/new",(req,res)=>{
     res.render("course")
 })
@@ -97,7 +164,7 @@ app.post("/page",async (request,response)=>{
         const page=await  Page.addPage(
             {
                 content : request.body.content,
-                description : request.body.description,
+                completed : request.body.completed,
                 ChapterId : request.query.ChapterId,
 
             }
