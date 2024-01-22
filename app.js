@@ -6,12 +6,45 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 const {Course,Chapter,Page} = require("./models");
 app.use(express.urlencoded({ extended: true })); 
+app.get("/fullpage/:id",async(req,res)=>{
+    try{
+        const pageContent= await Page.findByPk(req.params.id);
+        const ChapterName= await Chapter.findOne({
+            where:{id:pageContent.ChapterId}});
+        console.log(ChapterName)
+        if(req.accepts("html")){
+            res.render("pagecontent",{pageContent,ChapterName});
+            }
+            else{
+                return res.json(PageContent)
+            }
+    }catch(err){
+        console.log(err);
+        return res.status(422).json(err)
+    }
+})
 app.get("/mycourse",async(req,res)=>{
     try{
         const allCourse = await Course.getMyCourse(); 
         const allChapter =await Chapter.getChapter(); 
         if(req.accepts("html")){
         return res.render("mycourse",{allCourse,allChapter});
+        }
+        else{
+            return res.json(allCourse)
+        }
+    }catch(err){
+        console.log(err);
+        return res.status(422).json(err)
+    }
+})
+app.get("/progress",async(req,res)=>{
+    try{
+        const allCourse = await Course.getMyCourse(); 
+        const allChapter = await Chapter.getChapter(); 
+        const allPage = await Page.getPage(); 
+        if(req.accepts("html")){
+        return res.render("progress",{allCourse,allChapter,allPage});
         }
         else{
             return res.json(allCourse)

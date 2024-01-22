@@ -22,11 +22,10 @@ module.exports = (sequelize, DataTypes) => {
     }
     static getPage(){
       return this.findAll();
-
     }
 }
   Page.init({
-    content: DataTypes.STRING, 
+    content: DataTypes.TEXT, 
     completed: DataTypes.BOOLEAN,
     ChapterId: DataTypes.INTEGER
   }, {

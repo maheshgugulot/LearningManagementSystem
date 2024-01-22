@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Learning Progress</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+    
+    <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        
+        <button type="button" onclick="" class="mb-2 px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
+            My Progress
+        </button>
+        <% let total=0; %>
+        <% allPage.forEach(page => { %>
+            <% total = total+1; %>
+            <% }); %>
+            
+            <h2 class="text-lg font-semibold mb-2"> Total Pages <%= total %></h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <% allCourse.forEach(course => { %>
+                <% let count=0; %>
+                <% let markAsCompleted=0; %>
+                <% allChapter.forEach(chapter => { %>
+                    <% allPage.forEach(page => { %>
+                        <% if (course.dataValues.id === chapter.dataValues.CourseId) { %>
+                        <% if (chapter.dataValues.id === page.dataValues.ChapterId) { %>
+                            <% count=count+1 %>
+                            <% if(page.dataValues.completed) { %>
+                                <% markAsCompleted=markAsCompleted+1 %>
+                        <% } %>
+                        <% } %>
+                        <% } %>
+                    <% }); %>
+                <% }); %>
+
+                <a href="/viewcourse/<%= course.dataValues.id %>">              
+                <div class="bg-white overflow-hidden shadow-lg rounded-lg">
+                    <div class="p-4">
+                        <h2 class="text-lg font-semibold mb-2"><%= course.dataValues.title %>T(<%= count %>)C(<%= markAsCompleted %>) </h2>
+                        <div class="relative h-40 w-40">
+                            <svg class="h-full w-full" width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="18" cy="18" r="16" fill="none" class="stroke-current text-gray-200 dark:text-gray-700" stroke-width="2"></circle>
+                                <g class="origin-center -rotate-90 transform">
+                                    <circle cx="18" cy="18" r="16" fill="none" class="stroke-current text-blue-600 dark:text-blue-500"
+                                        stroke-width="2" stroke-dasharray="100" stroke-dashoffset="<%= 100 - (markAsCompleted/count  * 100) %>"></circle>
+                                </g>
+                            </svg>
+                            <div class="absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2 text-center w-full mx-20">
+                                <span class="text-2xl font-bold text-gray-800 dark:text-white">
+                                    <%= (markAsCompleted/count  * 100).toFixed(0) %>%
+                                </span>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                </a>
+            <% }); %>
+            
+        </div>
+    </div>
+</body>
+</html>
