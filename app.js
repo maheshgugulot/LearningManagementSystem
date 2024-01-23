@@ -11,7 +11,6 @@ app.get("/fullpage/:id",async(req,res)=>{
         const pageContent= await Page.findByPk(req.params.id);
         const ChapterName= await Chapter.findOne({
             where:{id:pageContent.ChapterId}});
-        console.log(ChapterName)
         if(req.accepts("html")){
             res.render("pagecontent",{pageContent,ChapterName});
             }
@@ -25,7 +24,7 @@ app.get("/fullpage/:id",async(req,res)=>{
 })
 app.get("/mycourse",async(req,res)=>{
     try{
-        const allCourse = await Course.getMyCourse(); 
+        const allCourse = await Course.getMyCourse();
         const allChapter =await Chapter.getChapter(); 
         if(req.accepts("html")){
         return res.render("mycourse",{allCourse,allChapter});
@@ -56,18 +55,16 @@ app.get("/progress",async(req,res)=>{
 })
 app.put("/enroll/:id", async (req, res) => {
     try {
-        const courseEnroll = await Course.findByPk(req.params.id);
-        if (!courseEnroll) {
+        const course = await Course.findByPk(req.params.id);
+        if (!course) {
             return res.status(404).json({ error: "Course not found" });
         }
 
-        // Update the enroll status for the specific course ID
-        const updateEnroll = await Course.update(
-            { enroll: !courseEnroll.enroll },
-            { where: { id: req.params.id } }
-        );
+        course.enroll = !course.enroll;
 
-        return res.json(updateEnroll);
+        await course.save();
+
+        return res.json({ enroll: course.enroll });
     } catch (err) {
         console.log(err);
         return res.status(422).json(err);
@@ -77,6 +74,7 @@ app.put("/markAsComplete/:id", async (req, res) => {
     try {
         const pageMarkAsComplete = await Page.findByPk(req.params.id);
         console.log("boolean value of page "+ pageMarkAsComplete.completed)
+        console.log("id value of page "+ req.params.id)
         if (!pageMarkAsComplete) {
             return res.status(404).json({ error: "page not found" });
         }
@@ -112,14 +110,17 @@ app.get("/",async(req,res)=>{
 app.post("/chapter",async (request,response)=>{
     console.log( "the title is " + request.query.CourseId)
     try{
-        const chapter=await Chapter.addChapter(
+        const chapter = await Chapter.addChapter(
             {
                 title : request.body.title,
                 description : request.body.description,
                 CourseId : request.query.CourseId
             }
             )
-            response.render("chapter-page",{"ChapterId":chapter.id,allPage});
+            console.log( "chapter" + chapter)
+            // const ChapterId 
+            const allPage=await Page.getPage();
+            response.render("chapter-page",{"ChapterId":chapter,allPage});
         }
         catch(error){
             console.log(error)
@@ -129,9 +130,10 @@ app.post("/chapter",async (request,response)=>{
     
 app.get("/chapter-page",async(req,res)=>{
         try{
-            console.log( "the title is " + req.query.ChapterId)
+            console.log( "the chapter-page id for /chapter-page " + req.query.ChapterId)
             const allPage=await Page.getPage();
-            res.render("chapter-page",{"ChapterId":req.query.ChapterId,allPage});
+            const chapter=await Chapter.findByPk(req.query.ChapterId);
+            res.render("chapter-page",{"ChapterId":chapter,allPage});
     }catch(err){
         console.log(err)
         return res.status(422).json(err)
@@ -141,13 +143,12 @@ app.get("/chapter-page",async(req,res)=>{
 app.get("/course/new",(req,res)=>{
     res.render("course")
 })
-// Middleware to fetch course details based on ID
 const fetchCourseDetails = async (req, res, next) => {
-    const courseId = req.params.courseId; // Assuming the course ID is in the URL parameter
+    const courseId = req.params.courseId; 
     try {
-        const course = await Course.findById(courseId); // Replace with your data retrieval logic
+        const course = await Course.findById(courseId); 
         if (course) {
-            req.course = course; // Attach course details to the request object
+            req.course = course; 
             next();
         } else {
             res.status(404).send("Course not found");
@@ -158,7 +159,6 @@ const fetchCourseDetails = async (req, res, next) => {
     }
 };
 
-// Use the middleware in your route
 app.get("/viewcourse/:courseId", fetchCourseDetails, async(req, res) => {
     const course = req.course;
     const allChapter = await Chapter.getChapter();
@@ -167,7 +167,7 @@ app.get("/viewcourse/:courseId", fetchCourseDetails, async(req, res) => {
 
 
 app.get("/page/new",(req,res)=>{
-    console.log( "the title is " + req.query.ChapterId)
+    console.log( "the chapter for /page/new " + req.query.ChapterId)
     res.render("page",{"ChapterId":req.query.ChapterId})
 })
 app.get("/chapter/new",(req,res)=>{
@@ -175,16 +175,13 @@ app.get("/chapter/new",(req,res)=>{
     res.render("chapter",{"CourseId":req.query.CourseId})
 })
 app.post("/course",async (request,response)=>{
-    console.log( "the title is " + request.body)
     try{
-        const allChapter = await Chapter.getChapter();
         const course=await Course.addCourse(
             {
                 title : request.body.title
             }
         )
-        console.log("the course is "+ course)
-        response.render("course-chapter",{"Course":course,"allChapter":allChapter});
+        response.redirect(`/viewcourse/${course.id}`);
     }
     catch(error){
         console.log(error)
@@ -194,15 +191,20 @@ app.post("/course",async (request,response)=>{
 app.post("/page",async (request,response)=>{
     console.log( "the chapterId is " + request.query.ChapterId)
     try{
-        const page=await  Page.addPage(
+        const pageContent=await  Page.addPage(
             {
                 content : request.body.content,
                 completed : request.body.completed,
                 ChapterId : request.query.ChapterId,
-
             }
         )
-        response.json(page)
+        console.log("pagecontent" + pageContent.id)
+        if(request.accepts("html")){
+            response.redirect(`/fullpage/${pageContent.id}`)
+            }
+            else{
+                return response.json(pageContent)
+            }
     }
     catch(error){
         console.log(error)

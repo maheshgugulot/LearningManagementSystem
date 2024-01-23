@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Home</title>
+    <style>
+        .enrolled-button {
+            border-left: 5px solid rgb(162, 203, 237);
+        }
+    </style>
+    
     <script>
         function updateEnroll(id,enroll) {
             console.log(enroll)
@@ -52,7 +58,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <% allCourse.forEach(course => { %>
-                <div class="bg-white overflow-hidden shadow-lg rounded-lg">
+                <div class="bg-white overflow-hidden shadow-lg rounded-lg course-container" data-course-id="<%= course.dataValues.id %>">
                     <!-- <img src="https://via.placeholder.com/150" alt="Course Image" class="w-full h-40 object-cover"> -->
                     <div class="p-4">
                         <h2 class="text-lg font-semibold mb-2"><%= course.dataValues.title %></h2>
@@ -68,9 +74,10 @@
                           <a href="/viewcourse/<%= course.dataValues.id %>" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300">
                             View Course
                         </a>
-                        <button id="enroll-button-<%= course.dataValues.id %>" <%= course.dataValues.enroll ? "true" : "false" %> onclick="updateEnroll(<%= course.dataValues.id %>,<%= course.dataValues.enroll %>)" class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring focus:border-green-300">
+                        <button id="enroll-button-<%= course.dataValues.id %>" <%= course.dataValues.enroll ? "true" : "false" %> onclick="updateEnroll(<%= course.dataValues.id %>,<%= course.dataValues.enroll %>)" class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring focus:border-green-300 <%= course.dataValues.enroll ? "enrolled-button" : "" %>">
                             <%= course.dataValues.enroll ? "Enrolled" : "Enroll" %>
-                        </button>                        
+                        </button>
+                                                
                         </div>
 
                     </div>
@@ -79,6 +86,8 @@
         </div>
 
     </div>
+    <script>
+    </script>
 </body>
 </html>
 

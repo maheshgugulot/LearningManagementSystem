@@ -19,13 +19,16 @@ module.exports = (sequelize, DataTypes) => {
     })
   }
   static getCourse(){
-    return this.findAll();
+    return this.findAll({
+      order: [['createdAt', 'DESC']],
+    });
   }
   static getMyCourse(){
     return this.findAll({
       where:{
         enroll:true
-      }
+      },
+      order: [['createdAt', 'DESC']],
     });
   }
   static findById(courseId) {
