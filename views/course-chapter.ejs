@@ -42,17 +42,22 @@
 <body>
     <div class="max-w-sm mx-auto my-4" role="group">
         <h1 class="text-5xl font-extrabold dark:text-white"><%= Course.title %></h1>
+        <% if (user.isAdmin) { %>
         <a href="<%= Course.enroll ? '/chapter/new?CourseId=' + Course.id : 'javascript:alert(\'You are not enrolled.\')' %>" class="<%= Course.enroll ? '' : 'disabled-link' %>">
             <button type="button" class=" my-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300">
                 Create New Chapter
             </button>
         </a>
+        <% } %>
+
         <% if (!Course.enroll) { %>
             <button id="enroll-button-<%= Course.id %>" onclick="updateEnroll(<%= Course.id %>, <%= Course.enroll %>)" class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring focus:border-green-300">
                 Enroll
             </button>
         <% } %>
-        <H1 class=""> Add Pages to Existing Chapters</H1>
+        <% if (user.isAdmin) { %>
+            <H1 class=""> Add Pages to Existing Chapters</H1>
+            <% } %>
         <% allChapter.forEach(chapter => { %>
             <% if (chapter.CourseId === Course.id) { %>
                 <div class="max-w-sm mx-auto" role="group">

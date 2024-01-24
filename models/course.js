@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Course.hasMany(models.Chapter);
+      Course.belongsTo(models.User, {
+        foreignKey: "userId",
+      });
    }
    static addCourse({title}){
     return this.create({
@@ -34,10 +37,12 @@ module.exports = (sequelize, DataTypes) => {
   static findById(courseId) {
     return this.findByPk(courseId);
   }
+  
 }
   Course.init({
     title: DataTypes.STRING,
-    enroll : DataTypes.BOOLEAN
+    enroll : DataTypes.BOOLEAN,
+    userId : DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Course',

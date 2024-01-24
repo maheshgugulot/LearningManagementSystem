@@ -57,25 +57,23 @@ passport.serializeUser((user, done) => {
       });
   });
 app.get("/",async(req,res)=>{
-    try{
-
-        if(req.accepts("html")){
-            res.render("index",{csrfToken: req.csrfToken(),
-            });
-        }
-        else{
-            res.json()
-        }
-    }catch(err){
-        console.log(err);
-        res.status(422).json(err);
-    }
+    if (req.isAuthenticated()) {
+        return res.redirect("/home");
+      }
+    res.render("index",{csrfToken: req.csrfToken(),
 })
 app.get("/signup", (request, response) => {
     response.render("signup", { csrfToken: request.csrfToken() });
   });
+});
   app.get("/login", (request, response) => {
     response.render("login", { csrfToken: request.csrfToken() });
+  });
+  app.get("/signout", (req, res) => {
+    req.logout((err) => {
+      if (err) return next(err);
+      res.redirect("/");
+    });
   });
 app.post("/users", async (request, response) => {
     const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
@@ -134,7 +132,7 @@ async (req,res)=>{
         const allCourse = await Course.getMyCourse();
         const allChapter =await Chapter.getChapter(); 
         if(req.accepts("html")){
-        return res.render("mycourse",{allCourse,allChapter});
+        return res.render("mycourse",{allCourse,user: req.user,allChapter});
         }
         else{
             return res.json(allCourse)
@@ -208,7 +206,7 @@ async (req,res)=>{
         const allCourse = await Course.getCourse();
         const allChapter = await Chapter.getChapter();
         if(req.accepts("html")){
-            res.render("home",{allCourse,allChapter,csrfToken: req.csrfToken()});
+            res.render("home",{allCourse,allChapter,user: req.user, csrfToken: req.csrfToken()});
         }
         else{
             res.json({allCourse})
@@ -235,7 +233,7 @@ app.post("/chapter", connectEnsureLogin.ensureLoggedIn(),async (request,response
             )
             console.log( "chapter" + chapter)
             const allPage=await Page.getPage();
-            response.render("chapter-page",{"ChapterId":chapter,allPage,csrfToken: request.csrfToken()});
+            response.render("chapter-page",{"ChapterId":chapter,allPage,user: req.user,csrfToken: request.csrfToken()});
         }
         catch(error){
             console.log(error)
@@ -249,7 +247,7 @@ async (req,res)=>{
             console.log( "the chapter-page id for /chapter-page " + req.query.ChapterId)
             const allPage=await Page.getPage();
             const chapter=await Chapter.findByPk(req.query.ChapterId);
-            res.render("chapter-page",{"ChapterId":chapter,allPage,csrfToken: req.csrfToken()});
+            res.render("chapter-page",{"ChapterId":chapter,allPage,csrfToken: req.csrfToken(),user: req.user});
     }catch(err){
         console.log(err)
         return res.status(422).json(err)
@@ -278,7 +276,7 @@ const fetchCourseDetails = async (req, res, next) => {
 app.get("/viewcourse/:courseId",  connectEnsureLogin.ensureLoggedIn(),fetchCourseDetails, async( req,res) => {
     const course = req.course;
     const allChapter = await Chapter.getChapter();
-    res.render("course-chapter", { "Course": course,"allChapter":allChapter,csrfToken: req.csrfToken() });
+    res.render("course-chapter", { "Course": course,"allChapter":allChapter,csrfToken: req.csrfToken(),user: req.user });
 });
 
 

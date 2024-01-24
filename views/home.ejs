@@ -46,11 +46,20 @@
     <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
 
         <div class="flex flex-col items-center mb-8">
-            <a href="/course/new">
+            <h3 class="mb-4 text-4xl tracking-tight font-bold text-gray-900 dark:text-white welcome-heading">Welcome to the Home Page, <%= user.id %>!</h3>
+
+            <a href="/signout" >
+                <button type="button" class="mb-2 px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
+                    Sign Out
+                  </button>
+                </a>
+
+           <% if(user.isAdmin) { %>  <a href="/course/new">
                 <button type="button" class="mb-2 px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
                   Create New Course
                 </button>
-            </a>          
+            </a>
+            <% } %>
             <button type="button" onclick="viewCourse()" class="mb-2 px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
                 My courses
             </button>
@@ -63,7 +72,6 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <% allCourse.forEach(course => { %>
                 <div class="bg-white overflow-hidden shadow-lg rounded-lg course-container" data-course-id="<%= course.dataValues.id %>">
-                    <!-- <img src="https://via.placeholder.com/150" alt="Course Image" class="w-full h-40 object-cover"> -->
                     <div class="p-4">
                         <h2 class="text-lg font-semibold mb-2"><%= course.dataValues.title %></h2>
                         <% let chapterCount = 0; %>

@@ -14,6 +14,7 @@
         </button>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <% allCourse.forEach(course => { %>
+            <% if (user.id === course.userId ) { %>
             <div class="bg-white overflow-hidden shadow-lg rounded-lg">
                 <!-- <img src="https://via.placeholder.com/150" alt="Course Image" class="w-full h-40 object-cover"> -->
                 <div class="p-4">
@@ -31,6 +32,7 @@
                     </div>
                 </div>
             </div>
+            <% } %>
         <% }) %>
     </div>
     </div>
