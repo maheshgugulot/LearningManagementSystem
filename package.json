@@ -16,7 +16,9 @@
     "sequelize": "^6.35.2"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "json": "^11.0.0",
-    "nodemon": "^3.0.3"
+    "nodemon": "^3.0.3",
+    "tiny-csrf": "^1.1.4"
   }
 }

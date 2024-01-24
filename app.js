@@ -1,18 +1,22 @@
 const express = require("express");
 const app = express();
+var cookieParser = require("cookie-parser");
+var csrf = require("tiny-csrf");
 const path = require("path");
 app.use(express.json()); 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 const {Course,Chapter,Page} = require("./models");
 app.use(express.urlencoded({ extended: true })); 
+app.use(cookieParser("ssh! some secret string"));
+app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
 app.get("/fullpage/:id",async(req,res)=>{
     try{
         const pageContent= await Page.findByPk(req.params.id);
         const ChapterName= await Chapter.findOne({
             where:{id:pageContent.ChapterId}});
         if(req.accepts("html")){
-            res.render("pagecontent",{pageContent,ChapterName});
+            res.render("pagecontent",{pageContent,ChapterName,csrfToken: req.csrfToken()});
             }
             else{
                 return res.json(PageContent)
@@ -109,7 +113,12 @@ app.get("/",async(req,res)=>{
 })
 app.post("/chapter",async (request,response)=>{
     console.log( "the title is " + request.query.CourseId)
+    console.log("CSRF Token received:", request.csrfToken());
+
     try{
+        if (!request.csrfToken()) {
+            return response.status(403).send("Invalid CSRF token");
+        }
         const chapter = await Chapter.addChapter(
             {
                 title : request.body.title,
@@ -120,7 +129,7 @@ app.post("/chapter",async (request,response)=>{
             console.log( "chapter" + chapter)
             // const ChapterId 
             const allPage=await Page.getPage();
-            response.render("chapter-page",{"ChapterId":chapter,allPage});
+            response.render("chapter-page",{"ChapterId":chapter,allPage,csrfToken: request.csrfToken()});
         }
         catch(error){
             console.log(error)
@@ -133,7 +142,7 @@ app.get("/chapter-page",async(req,res)=>{
             console.log( "the chapter-page id for /chapter-page " + req.query.ChapterId)
             const allPage=await Page.getPage();
             const chapter=await Chapter.findByPk(req.query.ChapterId);
-            res.render("chapter-page",{"ChapterId":chapter,allPage});
+            res.render("chapter-page",{"ChapterId":chapter,allPage,csrfToken: req.csrfToken()});
     }catch(err){
         console.log(err)
         return res.status(422).json(err)
@@ -141,7 +150,7 @@ app.get("/chapter-page",async(req,res)=>{
 })
 
 app.get("/course/new",(req,res)=>{
-    res.render("course")
+    res.render("course",{csrfToken: req.csrfToken()})
 })
 const fetchCourseDetails = async (req, res, next) => {
     const courseId = req.params.courseId; 
@@ -162,17 +171,17 @@ const fetchCourseDetails = async (req, res, next) => {
 app.get("/viewcourse/:courseId", fetchCourseDetails, async(req, res) => {
     const course = req.course;
     const allChapter = await Chapter.getChapter();
-    res.render("course-chapter", { "Course": course,"allChapter":allChapter });
+    res.render("course-chapter", { "Course": course,"allChapter":allChapter,csrfToken: req.csrfToken() });
 });
 
 
 app.get("/page/new",(req,res)=>{
     console.log( "the chapter for /page/new " + req.query.ChapterId)
-    res.render("page",{"ChapterId":req.query.ChapterId})
+    res.render("page",{"ChapterId":req.query.ChapterId,csrfToken: req.csrfToken()})
 })
 app.get("/chapter/new",(req,res)=>{
     console.log( "the title is " + req.query.CourseId)
-    res.render("chapter",{"CourseId":req.query.CourseId})
+    res.render("chapter",{"CourseId":req.query.CourseId, csrfToken: req.csrfToken()})
 })
 app.post("/course",async (request,response)=>{
     try{

@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script>
+        var token = document.querySelector('meta[name="csrf-token"]').getAttribute("content")
         function updateComplete(id, completed) {
             console.log(id);
             fetch(`/markAsComplete/${id}`, {
                 method: "put",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    completed: !completed
+                    completed: !completed,
+                    "_csrf": token
                 })
             })
                 .then((res) => {

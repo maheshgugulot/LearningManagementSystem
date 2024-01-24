@@ -8,6 +8,8 @@
 </head>
 <body>
     <form class="max-w-sm mx-auto" action="/page?ChapterId=<%= ChapterId %>" method="post">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
         <div class="mb-5">
             <label for="content" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Enter Content</label>
             <!-- Replace input with textarea -->
