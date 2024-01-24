@@ -2,15 +2,117 @@ const express = require("express");
 const app = express();
 var cookieParser = require("cookie-parser");
 var csrf = require("tiny-csrf");
+const passport = require("passport");
+const connectEnsureLogin = require("connect-ensure-login");
+const session = require("express-session");
+const LocalStrategy = require("passport-local");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 const path = require("path");
 app.use(express.json()); 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-const {Course,Chapter,Page} = require("./models");
+const {Course,Chapter,Page ,User} = require("./models");
 app.use(express.urlencoded({ extended: true })); 
 app.use(cookieParser("ssh! some secret string"));
 app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
-app.get("/fullpage/:id",async(req,res)=>{
+app.use(passport.initialize());
+app.use(session({
+    secret: "its-my-secret-key1010",
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, //24hrs
+    },
+  }),);
+  app.use(passport.initialize());
+app.use(passport.session());
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    (username, password, done) => {
+      User.findOne({ where: { email: username } })
+        .then(async (user) => {
+          const result = await bcrypt.compare(password, user.password);
+          return done(null, user);
+        })
+        .catch((error) => {
+          return done(error);
+        });
+    },
+  ),
+);
+passport.serializeUser((user, done) => {
+    console.log("Serializing user in session", user.id);
+    done(null, user.id);
+  });
+  passport.deserializeUser((id, done) => {
+    User.findByPk(id)
+      .then((user) => {
+        done(null, user);
+      })
+      .catch((error) => {
+        done(error, null);
+      });
+  });
+app.get("/",async(req,res)=>{
+    try{
+
+        if(req.accepts("html")){
+            res.render("index",{csrfToken: req.csrfToken(),
+            });
+        }
+        else{
+            res.json()
+        }
+    }catch(err){
+        console.log(err);
+        res.status(422).json(err);
+    }
+})
+app.get("/signup", (request, response) => {
+    response.render("signup", { csrfToken: request.csrfToken() });
+  });
+  app.get("/login", (request, response) => {
+    response.render("login", { csrfToken: request.csrfToken() });
+  });
+app.post("/users", async (request, response) => {
+    const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
+    var isAdminChecked =false;
+    if( request.body.isAdmin === 'on'){
+        isAdminChecked= true;
+    }
+    console.log("admin"+request.body.isAdmin)
+    console.log("admin"+isAdminChecked)
+    try {
+      const user = await User.create({
+        firstName: request.body.firstName,
+        lastName: request.body.lastName,
+        password: hashedPwd,
+        email: request.body.email,
+        isAdmin : isAdminChecked
+      });
+      request.login(user, (err) => {
+        if (err) console.log(err);
+        response.redirect("/home");
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  });
+  app.post("/session",
+    passport.authenticate("local", {
+      failureRedirect: "/login",
+      failureFlash: true,
+    }),
+    (request, response) => {
+      console.log(request.user);
+      response.redirect("/home");
+    },
+  );
+app.get("/fullpage/:id",connectEnsureLogin.ensureLoggedIn(),
+async (req,res)=>{
     try{
         const pageContent= await Page.findByPk(req.params.id);
         const ChapterName= await Chapter.findOne({
@@ -26,7 +128,8 @@ app.get("/fullpage/:id",async(req,res)=>{
         return res.status(422).json(err)
     }
 })
-app.get("/mycourse",async(req,res)=>{
+app.get("/mycourse",connectEnsureLogin.ensureLoggedIn(),
+async (req,res)=>{
     try{
         const allCourse = await Course.getMyCourse();
         const allChapter =await Chapter.getChapter(); 
@@ -41,7 +144,8 @@ app.get("/mycourse",async(req,res)=>{
         return res.status(422).json(err)
     }
 })
-app.get("/progress",async(req,res)=>{
+app.get("/progress",connectEnsureLogin.ensureLoggedIn(),
+async (req,res)=>{
     try{
         const allCourse = await Course.getMyCourse(); 
         const allChapter = await Chapter.getChapter(); 
@@ -57,7 +161,8 @@ app.get("/progress",async(req,res)=>{
         return res.status(422).json(err)
     }
 })
-app.put("/enroll/:id", async (req, res) => {
+app.put("/enroll/:id", connectEnsureLogin.ensureLoggedIn(),
+async (req,res) => {
     try {
         const course = await Course.findByPk(req.params.id);
         if (!course) {
@@ -74,7 +179,8 @@ app.put("/enroll/:id", async (req, res) => {
         return res.status(422).json(err);
     }
 });
-app.put("/markAsComplete/:id", async (req, res) => {
+app.put("/markAsComplete/:id", connectEnsureLogin.ensureLoggedIn(),
+async (req,res) => {
     try {
         const pageMarkAsComplete = await Page.findByPk(req.params.id);
         console.log("boolean value of page "+ pageMarkAsComplete.completed)
@@ -96,12 +202,13 @@ app.put("/markAsComplete/:id", async (req, res) => {
     }
 });
 
-app.get("/",async(req,res)=>{
+app.get("/home", connectEnsureLogin.ensureLoggedIn(),
+async (req,res)=>{
     try{
         const allCourse = await Course.getCourse();
         const allChapter = await Chapter.getChapter();
         if(req.accepts("html")){
-            res.render("home",{allCourse,allChapter});
+            res.render("home",{allCourse,allChapter,csrfToken: req.csrfToken()});
         }
         else{
             res.json({allCourse})
@@ -111,7 +218,7 @@ app.get("/",async(req,res)=>{
         res.status(422).json(err);
     }
 })
-app.post("/chapter",async (request,response)=>{
+app.post("/chapter", connectEnsureLogin.ensureLoggedIn(),async (request,response)=>{
     console.log( "the title is " + request.query.CourseId)
     console.log("CSRF Token received:", request.csrfToken());
 
@@ -127,7 +234,6 @@ app.post("/chapter",async (request,response)=>{
             }
             )
             console.log( "chapter" + chapter)
-            // const ChapterId 
             const allPage=await Page.getPage();
             response.render("chapter-page",{"ChapterId":chapter,allPage,csrfToken: request.csrfToken()});
         }
@@ -137,7 +243,8 @@ app.post("/chapter",async (request,response)=>{
         }
     })
     
-app.get("/chapter-page",async(req,res)=>{
+app.get("/chapter-page",connectEnsureLogin.ensureLoggedIn(),
+async (req,res)=>{
         try{
             console.log( "the chapter-page id for /chapter-page " + req.query.ChapterId)
             const allPage=await Page.getPage();
@@ -168,7 +275,7 @@ const fetchCourseDetails = async (req, res, next) => {
     }
 };
 
-app.get("/viewcourse/:courseId", fetchCourseDetails, async(req, res) => {
+app.get("/viewcourse/:courseId",  connectEnsureLogin.ensureLoggedIn(),fetchCourseDetails, async( req,res) => {
     const course = req.course;
     const allChapter = await Chapter.getChapter();
     res.render("course-chapter", { "Course": course,"allChapter":allChapter,csrfToken: req.csrfToken() });
@@ -183,7 +290,7 @@ app.get("/chapter/new",(req,res)=>{
     console.log( "the title is " + req.query.CourseId)
     res.render("chapter",{"CourseId":req.query.CourseId, csrfToken: req.csrfToken()})
 })
-app.post("/course",async (request,response)=>{
+app.post("/course", connectEnsureLogin.ensureLoggedIn(),async (request,response)=>{
     try{
         const course=await Course.addCourse(
             {
@@ -197,7 +304,7 @@ app.post("/course",async (request,response)=>{
         return response.status(422).json(error)
     }
 })
-app.post("/page",async (request,response)=>{
+app.post("/page", connectEnsureLogin.ensureLoggedIn(),async (request,response)=>{
     console.log( "the chapterId is " + request.query.ChapterId)
     try{
         const pageContent=await  Page.addPage(
