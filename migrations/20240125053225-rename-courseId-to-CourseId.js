@@ -3,10 +3,8 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.addColumn('Courses', 'enroll', {
-      type: Sequelize.BOOLEAN,
-      allowNull: true, // Modify as needed
-    });
+    await queryInterface.renameColumn("UserCourses", "courseId", "CourseId");
+
     /**
      * Add altering commands here.
      *
@@ -16,7 +14,8 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.removeColumn('Course', 'enroll');
+    await queryInterface.renameColumn("UserCourses", "CourseId", "courseId");
+
 
     /**
      * Add reverting commands here.

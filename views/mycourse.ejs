@@ -5,36 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
 </head>
 <body>
     <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
         <button type="button" onclick="" class="mb-2 px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
             My courses
         </button>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <% allCourse.forEach(course => { %>
-            <% if (user.id === course.userId ) { %>
-            <div class="bg-white overflow-hidden shadow-lg rounded-lg">
-                <!-- <img src="https://via.placeholder.com/150" alt="Course Image" class="w-full h-40 object-cover"> -->
-                <div class="p-4">
-                    <h2 class="text-lg font-semibold mb-2"><%= course.dataValues.title %></h2>
-                    <% allChapter.forEach(chapter => { %>
-                        <% if (chapter.CourseId === course.id ) { %>
-                            <li class="text-gray-600 mb-4"><%= chapter.dataValues.title %></li>
-                        <% } %>
-                    <% }); %>
-                    
-                    <div class="flex space-x-4">
-                      <a href="/viewcourse/<%= course.dataValues.id %>" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300">
-                        View Course
-                    </a>                        
-                    </div>
-                </div>
-            </div>
-            <% } %>
-        <% }) %>
-    </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <% allMyCourse.forEach(mycourse => { %>
+                <% allCourse.forEach(course => { %>
+                    <% if (mycourse.dataValues.CourseId === course.dataValues.id) { %>
+                        <div class="bg-white overflow-hidden shadow-lg rounded-lg">
+                            <!-- <img src="https://via.placeholder.com/150" alt="Course Image" class="w-full h-40 object-cover"> -->
+                            <div class="p-4">
+                                <h2 class="text-lg font-semibold mb-2"><%= course.dataValues.title %></h2>
+                                <% allChapter.forEach(chapter => { %>
+                                    <% if (chapter.CourseId === course.id) { %>
+                                        <li class="text-gray-600 mb-4"><%= chapter.dataValues.title %></li>
+                                    <% } %>
+                                <% }); %>
+                                <div class="flex space-x-4">
+                                    <a href="/viewcourse/<%= course.dataValues.id %>" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300">
+                                        View Course
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                <% }); %>
+            <% }); %>
+        </div>
     </div>
 </body>
 </html>

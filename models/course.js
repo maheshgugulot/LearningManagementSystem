@@ -11,26 +11,16 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Course.hasMany(models.Chapter);
-      Course.belongsTo(models.User, {
-        foreignKey: "userId",
-      });
+      Course.belongsToMany(models.User, { through: 'UserCourse' });
+
    }
    static addCourse({title}){
     return this.create({
       title ,
-      enroll : false
     })
   }
   static getCourse(){
     return this.findAll({
-      order: [['createdAt', 'DESC']],
-    });
-  }
-  static getMyCourse(){
-    return this.findAll({
-      where:{
-        enroll:true
-      },
       order: [['createdAt', 'DESC']],
     });
   }
@@ -41,9 +31,7 @@ module.exports = (sequelize, DataTypes) => {
 }
   Course.init({
     title: DataTypes.STRING,
-    enroll : DataTypes.BOOLEAN,
-    userId : DataTypes.INTEGER
-  }, {
+    }, {
     sequelize,
     modelName: 'Course',
   });

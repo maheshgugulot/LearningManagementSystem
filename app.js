@@ -12,7 +12,7 @@ const path = require("path");
 app.use(express.json()); 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-const {Course,Chapter,Page ,User} = require("./models");
+const {Course,Chapter,Page ,User,UserCourse} = require("./models");
 app.use(express.urlencoded({ extended: true })); 
 app.use(cookieParser("ssh! some secret string"));
 app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
@@ -109,6 +109,34 @@ app.post("/users", async (request, response) => {
       response.redirect("/home");
     },
   );
+app.post("/enroll/:id", connectEnsureLogin.ensureLoggedIn(),
+async (req,res) => {
+    console.log("courseid"+req.params.id);
+    console.log("enrol"+req.body.enroll);
+
+    try {
+        if(req.body.enroll){
+            const usercourse=await UserCourse.create({
+                UserId: req.body.userid,
+                CourseId : req.params.id,
+                enroll : req.body.enroll
+            });
+            return res.json({usercourse});
+        }
+        else{
+            const usercourse=await UserCourse.destroy({
+                where:{
+                UserId: req.body.userid,
+                CourseId : req.params.id,
+                }
+            });
+            return res.json({usercourse});
+        }
+    } catch (err) {
+        console.log(err);
+        return res.status(422).json(err);
+    }
+});
 app.get("/fullpage/:id",connectEnsureLogin.ensureLoggedIn(),
 async (req,res)=>{
     try{
@@ -129,10 +157,11 @@ async (req,res)=>{
 app.get("/mycourse",connectEnsureLogin.ensureLoggedIn(),
 async (req,res)=>{
     try{
-        const allCourse = await Course.getMyCourse();
         const allChapter =await Chapter.getChapter(); 
+        const allMyCourse = await UserCourse.getMyCourse(req.user.id);
+        const allCourse = await Course.getCourse();
         if(req.accepts("html")){
-        return res.render("mycourse",{allCourse,user: req.user,allChapter});
+        return res.render("mycourse",{allCourse,allMyCourse,user: req.user,allChapter});
         }
         else{
             return res.json(allCourse)
@@ -145,11 +174,12 @@ async (req,res)=>{
 app.get("/progress",connectEnsureLogin.ensureLoggedIn(),
 async (req,res)=>{
     try{
-        const allCourse = await Course.getMyCourse(); 
+        const allCourse = await Course.getCourse(); 
+        const allMyCourse = await UserCourse.getMyCourse(req.user.id);
         const allChapter = await Chapter.getChapter(); 
         const allPage = await Page.getPage(); 
         if(req.accepts("html")){
-        return res.render("progress",{allCourse,allChapter,allPage});
+        return res.render("progress",{allCourse,allMyCourse,allChapter,allPage});
         }
         else{
             return res.json(allCourse)
@@ -159,24 +189,8 @@ async (req,res)=>{
         return res.status(422).json(err)
     }
 })
-app.put("/enroll/:id", connectEnsureLogin.ensureLoggedIn(),
-async (req,res) => {
-    try {
-        const course = await Course.findByPk(req.params.id);
-        if (!course) {
-            return res.status(404).json({ error: "Course not found" });
-        }
 
-        course.enroll = !course.enroll;
 
-        await course.save();
-
-        return res.json({ enroll: course.enroll });
-    } catch (err) {
-        console.log(err);
-        return res.status(422).json(err);
-    }
-});
 app.put("/markAsComplete/:id", connectEnsureLogin.ensureLoggedIn(),
 async (req,res) => {
     try {
@@ -205,8 +219,10 @@ async (req,res)=>{
     try{
         const allCourse = await Course.getCourse();
         const allChapter = await Chapter.getChapter();
+        const allMyCourse = await UserCourse.getMyCourse(req.user.id);
+
         if(req.accepts("html")){
-            res.render("home",{allCourse,allChapter,user: req.user, csrfToken: req.csrfToken()});
+            res.render("home",{allCourse,allMyCourse,allChapter,user: req.user, csrfToken: req.csrfToken()});
         }
         else{
             res.json({allCourse})
@@ -274,9 +290,20 @@ const fetchCourseDetails = async (req, res, next) => {
 };
 
 app.get("/viewcourse/:courseId",  connectEnsureLogin.ensureLoggedIn(),fetchCourseDetails, async( req,res) => {
-    const course = req.course;
-    const allChapter = await Chapter.getChapter();
-    res.render("course-chapter", { "Course": course,"allChapter":allChapter,csrfToken: req.csrfToken(),user: req.user });
+    const allChapter = await Chapter.findAll({
+        where:{
+            CourseId:req.params.courseId
+        }
+    });
+    const allMyCourse = await UserCourse.findOne({
+        where:{
+            CourseId:req.params.courseId
+        }
+    });
+    console.log("allmycourse"+allMyCourse);
+    const allCourse = await Course.findByPk(req.params.courseId); 
+
+    res.render("course-chapter", { "Course":allCourse, allMyCourse,"allChapter":allChapter,csrfToken: req.csrfToken(),user: req.user });
 });
 
 
