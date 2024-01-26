@@ -31,7 +31,7 @@
                         <% if (course.dataValues.id === chapter.dataValues.CourseId) { %>
                         <% if (chapter.dataValues.id === page.dataValues.ChapterId) { %>
                             <% count=count+1 %>
-                            <% if(page.dataValues.completed) { %>
+                            <% if(allMyPage.some(mypage => mypage.dataValues.PageId === page.dataValues.id)) { %>
                                 <% markAsCompleted=markAsCompleted+1 %>
                             <% } %>
                         <% } %>

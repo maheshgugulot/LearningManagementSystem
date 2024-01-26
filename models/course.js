@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Course.hasMany(models.Chapter);
       Course.belongsToMany(models.User, { through: 'UserCourse' });
+      Course.belongsToMany(models.User, { through: 'UserPage' });
 
    }
    static addCourse({title}){

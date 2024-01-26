@@ -9,14 +9,18 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script>
         var token = document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-        function updateComplete(id, completed) {
+        function updateComplete(id, completed,CourseId) {
             console.log(id);
+            console.log(CourseId)
+            console.log(completed)
             fetch(`/markAsComplete/${id}`, {
-                method: "put",
+                method: "post",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     completed: !completed,
+                    CourseId : CourseId,
                     "_csrf": token
+
                 })
             })
                 .then((res) => {
@@ -38,14 +42,21 @@
                 <span class="font-extrabold"> Description : <%= ChapterName.dataValues.description %> </span> 
                 <p class="mb-4 font-light"><%= pageContent.dataValues.content %> </p>
                 <div class="p-4">
+                    <% if(pageContentCompleted) { %>
                     <button type="button" id="markasComplete-<%= pageContent.dataValues.id %>"
-                        <%= pageContent.dataValues.completed ? "true" : "false" %>
-                        onclick="updateComplete(<%= pageContent.dataValues.id %>, <%= pageContent.dataValues.completed %>)"
+                        onclick="updateComplete(<%= pageContent.dataValues.id %>,true ,<%= ChapterName.dataValues.CourseId %> )"
                         class="cursor-pointer flex space-x-2 rounded btn-default text-base items-center justify-center w-full font-semibold p-3 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focusColor-500 curriculum-overlay__learn-submit-btn hover:bg-purple-100">
                     <span class="w-2 h-2 inline-block rounded-full bg-blue-400"></span>
-                    <span><%= pageContent.dataValues.completed ? "Completed" : "Mark as Complete" %></span>
+                    <span>Completed</span>
                 </button>
-                
+                <% } else { %>
+                    <button type="button" id="markasComplete-<%= pageContent.dataValues.id %>"
+                        onclick="updateComplete(<%= pageContent.dataValues.id %>,false ,<%= ChapterName.dataValues.CourseId %> )"
+                        class="cursor-pointer flex space-x-2 rounded btn-default text-base items-center justify-center w-full font-semibold p-3 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focusColor-500 curriculum-overlay__learn-submit-btn hover:bg-purple-100">
+                    <span class="w-2 h-2 inline-block rounded-full bg-blue-400"></span>
+                    <span>Mark as Complete</span>
+                </button>
+                <% } %>                
                 </div>
             </div>
         </div>

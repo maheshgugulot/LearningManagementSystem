@@ -1,4 +1,6 @@
+
 const express = require("express");
+
 const app = express();
 var cookieParser = require("cookie-parser");
 var csrf = require("tiny-csrf");
@@ -12,7 +14,7 @@ const path = require("path");
 app.use(express.json()); 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-const {Course,Chapter,Page ,User,UserCourse} = require("./models");
+const {Course,Chapter,Page ,User,UserCourse,UserPage} = require("./models");
 app.use(express.urlencoded({ extended: true })); 
 app.use(cookieParser("ssh! some secret string"));
 app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
@@ -141,13 +143,15 @@ app.get("/fullpage/:id",connectEnsureLogin.ensureLoggedIn(),
 async (req,res)=>{
     try{
         const pageContent= await Page.findByPk(req.params.id);
+        const pageContentCompleted= await UserPage.findOne({
+            where:{PageId:req.params.id}});
         const ChapterName= await Chapter.findOne({
             where:{id:pageContent.ChapterId}});
         if(req.accepts("html")){
-            res.render("pagecontent",{pageContent,ChapterName,csrfToken: req.csrfToken()});
+            res.render("pagecontent",{pageContent,pageContentCompleted,ChapterName,csrfToken: req.csrfToken()});
             }
             else{
-                return res.json(PageContent)
+                return res.json(pageContent)
             }
     }catch(err){
         console.log(err);
@@ -176,10 +180,13 @@ async (req,res)=>{
     try{
         const allCourse = await Course.getCourse(); 
         const allMyCourse = await UserCourse.getMyCourse(req.user.id);
+        const allMyPage = await UserPage.findAll({
+            where:{UserId:req.user.id}});
         const allChapter = await Chapter.getChapter(); 
         const allPage = await Page.getPage(); 
+        console.log("allmypage",allMyPage.PageId)
         if(req.accepts("html")){
-        return res.render("progress",{allCourse,allMyCourse,allChapter,allPage});
+        return res.render("progress",{allCourse,allMyCourse,allMyPage,allChapter,allPage});
         }
         else{
             return res.json(allCourse)
@@ -191,23 +198,29 @@ async (req,res)=>{
 })
 
 
-app.put("/markAsComplete/:id", connectEnsureLogin.ensureLoggedIn(),
+app.post("/markAsComplete/:id", connectEnsureLogin.ensureLoggedIn(),
 async (req,res) => {
+    console.log("pageid"+req.params.id);
+    console.log("completer"+req.body.completed);
     try {
-        const pageMarkAsComplete = await Page.findByPk(req.params.id);
-        console.log("boolean value of page "+ pageMarkAsComplete.completed)
-        console.log("id value of page "+ req.params.id)
-        if (!pageMarkAsComplete) {
-            return res.status(404).json({ error: "page not found" });
+        if(req.body.completed){
+            const userpage=await UserPage.create({
+                UserId: req.user.id,
+                PageId : req.params.id,
+                completed : req.body.completed,
+                CourseId : req.body.CourseId
+            });
+            return res.json({userpage});
         }
-        
-        const PageMarkAsComplete = await Page.update(
-            { completed: !pageMarkAsComplete.completed },
-            { where: { id: req.params.id } }
-            );
-            
-            console.log("After boolean value of page "+ PageMarkAsComplete.completed)
-        return res.json(PageMarkAsComplete);
+        else{
+            const userpage=await UserPage.destroy({
+                where:{
+                UserId: req.user.id,
+                PageId : req.params.id,
+                }
+            });
+            return res.json({userpage});
+        }
     } catch (err) {
         console.log(err);
         return res.status(422).json(err);
@@ -249,7 +262,12 @@ app.post("/chapter", connectEnsureLogin.ensureLoggedIn(),async (request,response
             )
             console.log( "chapter" + chapter)
             const allPage=await Page.getPage();
-            response.render("chapter-page",{"ChapterId":chapter,allPage,user: req.user,csrfToken: request.csrfToken()});
+            const allMyPage=await UserPage.findAll({
+                where:{
+                    UserId:req.user.id
+                }
+            });
+            response.render("chapter-page",{"ChapterId":chapter,allPage,allMyPage,user: req.user,csrfToken: request.csrfToken()});
         }
         catch(error){
             console.log(error)
@@ -263,7 +281,13 @@ async (req,res)=>{
             console.log( "the chapter-page id for /chapter-page " + req.query.ChapterId)
             const allPage=await Page.getPage();
             const chapter=await Chapter.findByPk(req.query.ChapterId);
-            res.render("chapter-page",{"ChapterId":chapter,allPage,csrfToken: req.csrfToken(),user: req.user});
+            const allMyPage=await UserPage.findAll({
+                where:{
+                    UserId:req.user.id
+                }
+            });
+            console.log("allmypages",allMyPage);
+            res.render("chapter-page",{"ChapterId":chapter,allPage,allMyPage,csrfToken: req.csrfToken(),user: req.user});
     }catch(err){
         console.log(err)
         return res.status(422).json(err)

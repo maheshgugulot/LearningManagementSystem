@@ -9,13 +9,15 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script>
         var token = document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-        function updateComplete(id, completed) {
+        function updateComplete(id, completed,CourseId) {
             console.log(id);
+            console.log(CourseId)
             fetch(`/markAsComplete/${id}`, {
-                method: "put",
+                method: "post",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     completed: !completed,
+                    CourseId : CourseId,
                     "_csrf": token
 
                 })
@@ -55,7 +57,7 @@
             <a href="/page/new?ChapterId=<%= ChapterId.id %>">
                 <button type="button"
                     class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
-                    Create New Page <%= ChapterId.id %>
+                    Create New Page <%= ChapterId.CourseId %>
                 </button>
             </a>
         <% } %>
@@ -78,11 +80,19 @@
                             </div>
                         </div>
                         <div class="p-4">
+                            <% if(allMyPage.some(mypage => mypage.dataValues.PageId === page.dataValues.id)) { %>
                             <button type="button" id="markasComplete-<%= page.dataValues.id %> "
-                                <%= page.dataValues.completed ? "true" : "false" %> onclick="updateComplete(<%= page.dataValues.id %>,<%= page.dataValues.completed %>)"
+                                 onclick="updateComplete(<%= page.dataValues.id, %>,true,<%= ChapterId.CourseId %> )"
                                 class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring focus:border-green-300">
-                                <%= page.dataValues.completed ? "Completed" : "Mark as Complete" %>
+                                Completed
                             </button>
+                            <% } else { %>
+                                <button type="button" id="markasComplete-<%= page.dataValues.id %> "
+                                    onclick="updateComplete(<%= page.dataValues.id, %>,false,<%= ChapterId.CourseId %> )"
+                                   class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring focus:border-green-300">
+                                   Mark As Complete
+                               </button>
+                               <% } %>
                         </div>
                     </div>
                 <% } %>

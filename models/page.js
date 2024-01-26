@@ -11,6 +11,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Page.belongsTo(models.Chapter);
+      Page.belongsToMany(models.User, { through: 'UserPage' });
+
       // define association here
     }
     static addPage({content,completed,ChapterId}){
