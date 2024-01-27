@@ -8,6 +8,12 @@
     "test": "jest",
     "prepare": " npx husky install"
   },
+  "lint-staged": {
+    "*.js": [
+      "eslint",
+      "prettier --write ."
+    ]
+  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
