@@ -1,6 +1,7 @@
 
 const express = require("express");
-
+const { Sequelize} = require('sequelize');
+const { Op } = Sequelize;
 const app = express();
 var cookieParser = require("cookie-parser");
 var csrf = require("tiny-csrf");
@@ -14,6 +15,7 @@ const path = require("path");
 app.use(express.json()); 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+app.use(express.static(path.join(__dirname, "public")));
 const {Course,Chapter,Page ,User,UserCourse,UserPage} = require("./models");
 app.use(express.urlencoded({ extended: true })); 
 app.use(cookieParser("ssh! some secret string"));
@@ -154,7 +156,7 @@ async (req,res)=>{
         const ChapterName= await Chapter.findOne({
             where:{id:pageContent.ChapterId}});
         if(req.accepts("html")){
-            res.render("pagecontent",{pageContent,pageContentCompleted,ChapterName,csrfToken: req.csrfToken()});
+            res.render("pagecontent",{pageContent,pageContentCompleted,ChapterName,"user":req.user,csrfToken: req.csrfToken()});
             }
             else{
                 return res.json(pageContent)
@@ -168,10 +170,20 @@ app.get("/mycourse",connectEnsureLogin.ensureLoggedIn(),
 async (req,res)=>{
     try{
         const allChapter =await Chapter.getChapter(); 
+        const course = await Course.findAll({
+            where: {
+                UserId: req.user.id
+            }
+        });
+        var coursevalue = true;
+        if(course === null){
+            coursevalue= false;
+
+        }
         const allMyCourse = await UserCourse.getMyCourse(req.user.id);
         const allCourse = await Course.getCourse();
         if(req.accepts("html")){
-        return res.render("mycourse",{allCourse,allMyCourse,user: req.user,allChapter});
+        return res.render("mycourse",{allCourse,course,coursevalue,allMyCourse,user: req.user,allChapter});
         }
         else{
             return res.json(allCourse)
@@ -353,7 +365,8 @@ app.post("/course", connectEnsureLogin.ensureLoggedIn(),async (request,response)
     try{
         const course=await Course.addCourse(
             {
-                title : request.body.title
+                title : request.body.title,
+                UserId:req.user.id
             }
         )
         response.redirect(`/viewcourse/${course.id}`);
@@ -387,5 +400,37 @@ app.post("/viewcourse/:CourseId/chapter/:ChapterId/page", connectEnsureLogin.ens
         return response.status(422).json(error)
     }
 })
+app.get("/reports", async (req, res) => {
+    try {
+        const course = await Course.findAll({
+            where: {
+                UserId: req.user.id
+            }
+        });
+
+        const courseidArray = course.map(course => course.id);
+        const usercourseCounts = await Promise.all(courseidArray.map(async courseId => {
+            const count = await UserCourse.count({
+                where: {
+                    CourseId: courseId
+                }
+            });
+            return {
+                courseId,
+                count
+            };
+        }));
+        course.sort((a, b) => {
+            const countA = usercourseCounts.find(item => item.courseId === a.id)?.count || 0;
+            const countB = usercourseCounts.find(item => item.courseId === b.id)?.count || 0;
+            return countB - countA;
+        });
+        return res.render("report", { course, usercourseCounts });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 module.exports = app;

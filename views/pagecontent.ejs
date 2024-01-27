@@ -8,6 +8,11 @@
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script>
+            window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
         var token = document.querySelector('meta[name="csrf-token"]').getAttribute("content")
         function updateComplete(id, completed,CourseId) {
             console.log(id);
@@ -41,6 +46,8 @@
                 <h2 class="mb-4 text-4xl tracking-tight font-bold text-gray-900 dark:text-white">Chapter : <%= ChapterName.dataValues.title %> </h2>
                 <span class="font-extrabold"> Description : <%= ChapterName.dataValues.description %> </span> 
                 <p class="mb-4 font-light"><%= pageContent.dataValues.content %> </p>
+                <% if(!user.isAdmin) { %>
+
                 <div class="p-4">
                     <% if(pageContentCompleted) { %>
                     <button type="button" id="markasComplete-<%= pageContent.dataValues.id %>"
@@ -58,6 +65,7 @@
                 </button>
                 <% } %>                
                 </div>
+                <% } %>
             </div>
         </div>
       </section>

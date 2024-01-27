@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       // define association here
     }
+    
     static getMyCourse(UserId){
       return this.findAll({
         where:{
