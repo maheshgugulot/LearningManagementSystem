@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class UserCourse extends Model {
     /**
@@ -18,23 +16,25 @@ module.exports = (sequelize, DataTypes) => {
       });
       // define association here
     }
-    
-    static getMyCourse(UserId){
+
+    static getMyCourse(UserId) {
       return this.findAll({
-        where:{
-          UserId:UserId
-        }
-      })
+        where: {
+          UserId: UserId,
+        },
+      });
     }
   }
-  UserCourse.init({
-    enroll: DataTypes.BOOLEAN,
-    CourseId : DataTypes.INTEGER,
-    UserId : DataTypes.INTEGER,
-
-  }, {
-    sequelize,
-    modelName: 'UserCourse',
-  });
+  UserCourse.init(
+    {
+      enroll: DataTypes.BOOLEAN,
+      CourseId: DataTypes.INTEGER,
+      UserId: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: "UserCourse",
+    },
+  );
   return UserCourse;
 };

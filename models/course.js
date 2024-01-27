@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Course extends Model {
     /**
@@ -14,31 +12,32 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "UserId",
       });
       Course.hasMany(models.Chapter);
-      Course.belongsToMany(models.User, { through: 'UserCourse' });
-      Course.belongsToMany(models.User, { through: 'UserPage' });
-
-   }
-   static addCourse({title,UserId}){
-    return this.create({
-      title,
-      UserId
-    })
+      Course.belongsToMany(models.User, { through: "UserCourse" });
+      Course.belongsToMany(models.User, { through: "UserPage" });
+    }
+    static addCourse({ title, UserId }) {
+      return this.create({
+        title,
+        UserId,
+      });
+    }
+    static getCourse() {
+      return this.findAll({
+        order: [["createdAt", "DESC"]],
+      });
+    }
+    static findById(courseId) {
+      return this.findByPk(courseId);
+    }
   }
-  static getCourse(){
-    return this.findAll({
-      order: [['createdAt', 'DESC']],
-    });
-  }
-  static findById(courseId) {
-    return this.findByPk(courseId);
-  }
-  
-}
-  Course.init({
-    title: DataTypes.STRING,
-    }, {
-    sequelize,
-    modelName: 'Course',
-  });
+  Course.init(
+    {
+      title: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: "Course",
+    },
+  );
   return Course;
 };

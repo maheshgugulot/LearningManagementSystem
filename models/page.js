@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Page extends Model {
     /**
@@ -11,28 +9,31 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Page.belongsTo(models.Chapter);
-      Page.belongsToMany(models.User, { through: 'UserPage' });
+      Page.belongsToMany(models.User, { through: "UserPage" });
 
       // define association here
     }
-    static addPage({content,completed,ChapterId}){
+    static addPage({ content, completed, ChapterId }) {
       return this.create({
         content,
-        completed : false,
-        ChapterId
-      })
+        completed: false,
+        ChapterId,
+      });
     }
-    static getPage(){
+    static getPage() {
       return this.findAll();
     }
-}
-  Page.init({
-    content: DataTypes.TEXT, 
-    completed: DataTypes.BOOLEAN,
-    ChapterId: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'Page',
-  });
+  }
+  Page.init(
+    {
+      content: DataTypes.TEXT,
+      completed: DataTypes.BOOLEAN,
+      ChapterId: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: "Page",
+    },
+  );
   return Page;
 };

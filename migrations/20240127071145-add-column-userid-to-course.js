@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     await queryInterface.addColumn("Courses", "UserId", {
       type: Sequelize.DataTypes.INTEGER,
     });
@@ -16,7 +16,7 @@ module.exports = {
     });
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.removeColumn("Courses", "UserId");
 
     /**
@@ -25,5 +25,5 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-  }
+  },
 };

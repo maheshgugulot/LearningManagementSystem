@@ -1,26 +1,26 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('UserPages', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable("UserPages", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       completed: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
 
     /**
@@ -31,8 +31,8 @@ module.exports = {
      */
   },
 
-  async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('UserPages');
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable("UserPages");
 
     /**
      * Add reverting commands here.
@@ -40,5 +40,5 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-  }
+  },
 };

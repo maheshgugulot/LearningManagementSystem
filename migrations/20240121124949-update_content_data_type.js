@@ -1,11 +1,11 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.changeColumn('Pages','content',{
+  async up(queryInterface, Sequelize) {
+    await queryInterface.changeColumn("Pages", "content", {
       type: Sequelize.TEXT,
-    })
+    });
     /**
      * Add altering commands here.
      *
@@ -14,15 +14,15 @@ module.exports = {
      */
   },
 
-  async down (queryInterface, Sequelize) {
-    await queryInterface.changeColumn('Pages','content',{
-      type:Sequelize.STRING,
-    })
+  async down(queryInterface, Sequelize) {
+    await queryInterface.changeColumn("Pages", "content", {
+      type: Sequelize.STRING,
+    });
     /**
      * Add reverting commands here.
      *
      * Example:
      * await queryInterface.dropTable('users');
      */
-  }
+  },
 };
