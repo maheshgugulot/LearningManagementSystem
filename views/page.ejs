@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body>
-    <form class="max-w-sm mx-auto" action="/page?ChapterId=<%= ChapterId %>" method="post">
+    <form class="max-w-sm mx-auto" action="/viewcourse/<%= ChapterId.CourseId %>/chapter/<%= ChapterId.id %>/page/" method="post">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
 
         <div class="mb-5">

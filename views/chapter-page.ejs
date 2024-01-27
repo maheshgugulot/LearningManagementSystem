@@ -29,23 +29,6 @@
                 })
                 .catch((err) => console.error(err));
         }
-        function showFullContent(id) {
-            console.log(id);
-            fetch(`/fullpage/${id}`,{
-                method : "get",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    "_csrf": token
-                })
-            })
-            .then((res)=>{
-                if(res.ok){
-                   console.log(res);
-                }
-            })
-            .catch((err)=> console.error(err));
-
-        }
     </script>
     
 </head>
@@ -54,7 +37,7 @@
 
     <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
         <% if (user.isAdmin) { %>
-            <a href="/page/new?ChapterId=<%= ChapterId.id %>">
+            <a href="/viewcourse/<%= ChapterId.CourseId %>/chapter/<%= ChapterId.id %>/page/new/">
                 <button type="button"
                     class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
                     Create New Page <%= ChapterId.CourseId %>
@@ -68,7 +51,7 @@
                 <% if (Number(ChapterId.id) === page.dataValues.ChapterId) { %>
                     <div class="bg-white overflow-hidden shadow-lg rounded-lg">
                         <div class="p-4 relative">
-                            <a href="/fullpage/<%= page.dataValues.id %>">              
+                            <a href="/viewcourse/<%= ChapterId.CourseId %>/chapter/<%= ChapterId.id %>/fullpage/<%= page.dataValues.id %>">              
 
                             <button type="button"
                                 class="w-full focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">

@@ -40,7 +40,7 @@
     <div class="max-w-sm mx-auto my-4" role="group">
         <h1 class="text-5xl font-extrabold dark:text-white"><%= Course.title %></h1>
         <% if (user.isAdmin) { %>
-        <a href="/chapter/new?CourseId=<%= Course.id %>">
+        <a href="/viewcourse/<%= Course.id %>/chapter/new/">
             <button type="button" class=" my-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300">
                 Create New Chapter
             </button>
@@ -57,7 +57,7 @@
             <% } %>
         <% allChapter.forEach(chapter => { %>
                 <div class="max-w-sm mx-auto" role="group">
-                    <a href="<%= allMyCourse ? '/chapter-page?ChapterId=' + chapter.dataValues.id : 'javascript:alert(\'You are not enrolled.\')' %>">              
+                    <a href="<%= allMyCourse ? '/viewcourse/' + chapter.dataValues.CourseId + '/chapter-page/' + chapter.dataValues.id : 'javascript:alert(\'You are not enrolled.\')' %>">              
                         <button type="button" class=" w-40 focus:outline-none my-4 text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"><%= chapter.dataValues.title %></button>
                     </a>          
                 </div>

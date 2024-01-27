@@ -10,7 +10,7 @@
 <body>
   <p>
   </p>
-<form class="max-w-sm mx-auto" action="/chapter?CourseId=<%= CourseId %>" method="post">
+<form class="max-w-sm mx-auto" action="/viewcourse/<%= CourseId %>/chapter" method="post">
   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
     <div class="mb-5" >
       <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Enter Title</label>

@@ -132,14 +132,20 @@ async (req,res) => {
                 CourseId : req.params.id,
                 }
             });
-            return res.json({usercourse});
+            const userpage=await UserPage.destroy({
+                where:{
+                UserId: req.user.id,
+                CourseId : req.params.id,
+                }
+            });
+            return res.json({usercourse,userpage});
         }
     } catch (err) {
         console.log(err);
         return res.status(422).json(err);
     }
 });
-app.get("/fullpage/:id",connectEnsureLogin.ensureLoggedIn(),
+app.get("/viewcourse/:CourseId/chapter/:ChapterId/fullpage/:id",connectEnsureLogin.ensureLoggedIn(),
 async (req,res)=>{
     try{
         const pageContent= await Page.findByPk(req.params.id);
@@ -245,8 +251,8 @@ async (req,res)=>{
         res.status(422).json(err);
     }
 })
-app.post("/chapter", connectEnsureLogin.ensureLoggedIn(),async (request,response)=>{
-    console.log( "the title is " + request.query.CourseId)
+app.post("/viewcourse/:CourseId/chapter", connectEnsureLogin.ensureLoggedIn(),async (request,response)=>{
+    console.log( "the courseid is " + request.params.CourseId)
     console.log("CSRF Token received:", request.csrfToken());
 
     try{
@@ -257,17 +263,17 @@ app.post("/chapter", connectEnsureLogin.ensureLoggedIn(),async (request,response
             {
                 title : request.body.title,
                 description : request.body.description,
-                CourseId : request.query.CourseId
+                CourseId : request.params.CourseId
             }
             )
             console.log( "chapter" + chapter)
             const allPage=await Page.getPage();
             const allMyPage=await UserPage.findAll({
                 where:{
-                    UserId:req.user.id
+                    UserId:request.user.id
                 }
             });
-            response.render("chapter-page",{"ChapterId":chapter,allPage,allMyPage,user: req.user,csrfToken: request.csrfToken()});
+            response.render("chapter-page",{"ChapterId":chapter,allPage,allMyPage,user: request.user,csrfToken: request.csrfToken()});
         }
         catch(error){
             console.log(error)
@@ -275,12 +281,12 @@ app.post("/chapter", connectEnsureLogin.ensureLoggedIn(),async (request,response
         }
     })
     
-app.get("/chapter-page",connectEnsureLogin.ensureLoggedIn(),
+app.get("/viewcourse/:CourseId/chapter-page/:ChapterId",connectEnsureLogin.ensureLoggedIn(),
 async (req,res)=>{
         try{
-            console.log( "the chapter-page id for /chapter-page " + req.query.ChapterId)
+            console.log( "the chapter-page id for /chapter-page " + req.params.ChapterId)
             const allPage=await Page.getPage();
-            const chapter=await Chapter.findByPk(req.query.ChapterId);
+            const chapter=await Chapter.findByPk(req.params.ChapterId);
             const allMyPage=await UserPage.findAll({
                 where:{
                     UserId:req.user.id
@@ -319,25 +325,29 @@ app.get("/viewcourse/:courseId",  connectEnsureLogin.ensureLoggedIn(),fetchCours
             CourseId:req.params.courseId
         }
     });
-    const allMyCourse = await UserCourse.findOne({
+    var allMyCourse = await UserCourse.findOne({
         where:{
+            UserId:req.user.id,
             CourseId:req.params.courseId
         }
     });
-    console.log("allmycourse"+allMyCourse);
+    if(allMyCourse === null){
+        allMyCourse = false
+    };
     const allCourse = await Course.findByPk(req.params.courseId); 
 
     res.render("course-chapter", { "Course":allCourse, allMyCourse,"allChapter":allChapter,csrfToken: req.csrfToken(),user: req.user });
 });
 
 
-app.get("/page/new",(req,res)=>{
-    console.log( "the chapter for /page/new " + req.query.ChapterId)
-    res.render("page",{"ChapterId":req.query.ChapterId,csrfToken: req.csrfToken()})
+app.get("/viewcourse/:CourseId/chapter/:ChapterId/page/new/",async(req,res)=>{
+    console.log( "the chapter for /page/new " + req.params.ChapterId)
+    const chapter= await Chapter.findByPk(req.params.ChapterId)
+    res.render("page",{"ChapterId":chapter,csrfToken: req.csrfToken()})
 })
-app.get("/chapter/new",(req,res)=>{
-    console.log( "the title is " + req.query.CourseId)
-    res.render("chapter",{"CourseId":req.query.CourseId, csrfToken: req.csrfToken()})
+app.get("/viewcourse/:CourseId/chapter/new",(req,res)=>{
+    console.log( "the title is " + req.params.CourseId)
+    res.render("chapter",{"CourseId":req.params.CourseId, csrfToken: req.csrfToken()})
 })
 app.post("/course", connectEnsureLogin.ensureLoggedIn(),async (request,response)=>{
     try{
@@ -353,19 +363,20 @@ app.post("/course", connectEnsureLogin.ensureLoggedIn(),async (request,response)
         return response.status(422).json(error)
     }
 })
-app.post("/page", connectEnsureLogin.ensureLoggedIn(),async (request,response)=>{
-    console.log( "the chapterId is " + request.query.ChapterId)
+app.post("/viewcourse/:CourseId/chapter/:ChapterId/page", connectEnsureLogin.ensureLoggedIn(),async (request,response)=>{
+    console.log( "the chapterId is " + request.params.ChapterId)
     try{
         const pageContent=await  Page.addPage(
             {
                 content : request.body.content,
                 completed : request.body.completed,
-                ChapterId : request.query.ChapterId,
+                ChapterId : request.params.ChapterId,
             }
         )
+        const chapter = await Chapter.findByPk(request.params.ChapterId)
         console.log("pagecontent" + pageContent.id)
         if(request.accepts("html")){
-            response.redirect(`/fullpage/${pageContent.id}`)
+            response.redirect(`/viewcourse/${chapter.CourseId}/chapter/${request.params.ChapterId}/fullpage/${pageContent.id}`)
             }
             else{
                 return response.json(pageContent)
