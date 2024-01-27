@@ -18,17 +18,23 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 const {Course,Chapter,Page ,User,UserCourse,UserPage} = require("./models");
 app.use(express.urlencoded({ extended: true })); 
-app.use(cookieParser("ssh! some secret string"));
+app.use(cookieParser("mahi's secret string"));
 app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
+const flash = require("connect-flash");
+app.use(flash());
 app.use(passport.initialize());
 app.use(session({
     secret: "its-my-secret-key1010",
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000, //24hrs
+      maxAge: 24 * 60 * 60 * 1000, 
     },
   }),);
   app.use(passport.initialize());
 app.use(passport.session());
+app.use(function (request, response, next) {
+    response.locals.messages = request.flash();
+    next();
+  });
 passport.use(
   new LocalStrategy(
     {
@@ -39,7 +45,8 @@ passport.use(
       User.findOne({ where: { email: username } })
         .then(async (user) => {
           const result = await bcrypt.compare(password, user.password);
-          return done(null, user);
+          if (result) return done(null, user);
+          else return done(null, false, { message: "Invalid password" });
         })
         .catch((error) => {
           return done(error);
@@ -73,12 +80,56 @@ app.get("/signup", (request, response) => {
   app.get("/login", (request, response) => {
     response.render("login", { csrfToken: request.csrfToken() });
   });
+  app.post(
+    "/session",
+    passport.authenticate("local", {
+      failureRedirect: "/login", 
+      failureFlash: true,
+    }),
+    function (request, response) {
+      console.log(request.user);
+      response.redirect("/home");
+    }
+  );
   app.get("/signout", (req, res) => {
     req.logout((err) => {
       if (err) return next(err);
       res.redirect("/");
     });
   });
+app.get("/changepassword",(req,res)=>{
+    return res.render("change",{ csrfToken: req.csrfToken() });
+})
+
+app.post("/change", connectEnsureLogin.ensureLoggedIn(),async (req, res) => {
+    const originalPassword = req.body.original;
+    const newPassword = req.body.change;
+    const userId = req.user.id; 
+
+    try {
+        const user = await User.findByPk(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const isPasswordMatch = await bcrypt.compare(originalPassword, user.password);
+
+        if (!isPasswordMatch) {
+            return res.status(400).json({ error: "Original password is incorrect" });
+        }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        await User.update({ password: hashedNewPassword }, { where: { id: userId } });
+
+        res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+        console.error("Error updating password:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 app.post("/users", async (request, response) => {
     const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
     var isAdminChecked =false;
@@ -103,16 +154,7 @@ app.post("/users", async (request, response) => {
       console.log(error);
     }
   });
-  app.post("/session",
-    passport.authenticate("local", {
-      failureRedirect: "/login",
-      failureFlash: true,
-    }),
-    (request, response) => {
-      console.log(request.user);
-      response.redirect("/home");
-    },
-  );
+
 app.post("/enroll/:id", connectEnsureLogin.ensureLoggedIn(),
 async (req,res) => {
     console.log("courseid"+req.params.id);

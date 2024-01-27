@@ -56,8 +56,13 @@
     <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
 
         <div class="flex flex-col items-center mb-8">
-            <h3 class="mb-4 text-4xl tracking-tight font-bold text-gray-900 dark:text-white welcome-heading">Welcome to the Home Page, <%= user.id %>!</h3>
+            <h3 class="mb-4 text-4xl tracking-tight font-bold text-gray-900 dark:text-white welcome-heading">Welcome to the Home Page, <%= user.firstName %>!</h3>
 
+            <a href="/changepassword" >
+                <button type="button" class="mb-2 px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
+                    Change Password
+                </button>
+            </a>
             <a href="/signout" >
                 <button type="button" class="mb-2 px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
                     Sign Out
