@@ -44,4 +44,4 @@ Once the application is running, access it in your web browser at `http://localh
 - `/enroll/:courseId` - Enroll in a specific course.
 - `/viewcourse/:CourseId` - View chapters of an enrolled course.
 - `/viewcourse/:CourseId/chapter/:ChapterId/` - View pages of a chapter in an enrolled course.
-- `/markAsComplete/:id` - Mark chapters as complete.
+- `/markAsComplete/:Pageid` - Mark Pages as complete.
