@@ -1,5 +1,7 @@
+/* eslint-disable no-undef */
 const express = require("express");
 const { Sequelize } = require("sequelize");
+// eslint-disable-next-line no-unused-vars
 const { Op } = Sequelize;
 const app = express();
 var cookieParser = require("cookie-parser");
@@ -13,7 +15,9 @@ const saltRounds = 10;
 const path = require("path");
 app.use(express.json());
 app.set("view engine", "ejs");
+// eslint-disable-next-line no-undef
 app.set("views", path.join(__dirname, "views"));
+// eslint-disable-next-line no-undef
 app.use(express.static(path.join(__dirname, "public")));
 const {
   Course,
@@ -31,6 +35,8 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(
   session({
+    resave: false,
+    saveUninitialized: true,
     secret: "its-my-secret-key1010",
     cookie: {
       maxAge: 24 * 60 * 60 * 1000,
@@ -483,7 +489,7 @@ app.post(
     try {
       const course = await Course.addCourse({
         title: request.body.title,
-        UserId: req.user.id,
+        UserId: request.user.id,
       });
       response.redirect(`/viewcourse/${course.id}`);
     } catch (error) {
@@ -553,5 +559,4 @@ app.get("/reports", async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
 module.exports = app;
