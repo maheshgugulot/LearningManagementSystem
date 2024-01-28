@@ -123,6 +123,7 @@ app.post("/change", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
     const user = await User.findByPk(userId);
 
     if (!user) {
+      req.flash("error", "User not found");
       return res.status(404).json({ error: "User not found" });
     }
 
@@ -132,7 +133,8 @@ app.post("/change", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
     );
 
     if (!isPasswordMatch) {
-      return res.status(400).json({ error: "Original password is incorrect" });
+      req.flash("error", "Original password is incorrect");
+      return res.redirect("/changepassword");
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
@@ -142,9 +144,11 @@ app.post("/change", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
       { where: { id: userId } },
     );
 
-    res.status(200).json({ message: "Password updated successfully" });
+    req.flash("success", "Password updated successfully");
+    res.redirect("/changepassword");
   } catch (error) {
     console.error("Error updating password:", error);
+    req.flash("error", "Internal server error");
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -531,7 +535,6 @@ app.get("/reports", async (req, res) => {
         UserId: req.user.id,
       },
     });
-
     const courseidArray = course.map((course) => course.id);
     const usercourseCounts = await Promise.all(
       courseidArray.map(async (courseId) => {
