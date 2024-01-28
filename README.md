@@ -42,6 +42,6 @@ Once the application is running, access it in your web browser at `http://localh
 - `/login` - Log in as an existing user.
 - `/signout` - Log out from the system.
 - `/enroll/:courseId` - Enroll in a specific course.
-- `/viewcourse/:CourseId/chapters` - View chapters of an enrolled course.
-- `/viewcourse/:CourseId/chapters/:ChapterId/pages` - View pages of a chapter in an enrolled course.
-- `/viewcourse/:CourseId/markAsComplete` - Mark chapters as complete.
+- `/viewcourse/:CourseId` - View chapters of an enrolled course.
+- `/viewcourse/:CourseId/chapter/:ChapterId/` - View pages of a chapter in an enrolled course.
+- `/markAsComplete/:id` - Mark chapters as complete.
