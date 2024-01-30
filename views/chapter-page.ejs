@@ -7,92 +7,125 @@
     <meta name="csrf-token" content="<%= csrfToken %>" />
     <title>Chapter</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script>
-    window.addEventListener('pageshow', function(event) {
-        if (event.persisted) {
-            window.location.reload();
+    <style>
+        .page-content {
+            max-height: 200px; /* Limit height to prevent overflow */
+            overflow: hidden;
         }
-    });
+        .page-content:hover {
+            max-height: none; /* Show full content on hover */
+        }
+    </style>
+    <script>
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
 
         var token = document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-        function updateComplete(id, completed,CourseId) {
+        function updateComplete(id, completed, CourseId) {
             console.log(id);
             console.log(CourseId)
             fetch(`/markAsComplete/${id}`, {
-                method: "post",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    completed: !completed,
-                    CourseId : CourseId,
-                    "_csrf": token
-
-                })
-            })
-                .then((res) => {
-                    if (res.ok) {
-                        window.location.reload();
-                    }
+                    method: "post",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        completed: !completed,
+                        CourseId: CourseId,
+                        ChapterId
+                    })
                 })
                 .catch((err) => console.error(err));
         }
     </script>
-    
+
 </head>
 
 <body class="bg-gray-100">
+    <nav class="bg-white shadow-sm py-4 px-6">
+        <div class="container mx-auto">
+            <ul class="flex items-center space-x-2 text-sm">
+                <li><a href="/home" class="text-blue-500 hover:underline">Home</a></li>
+                <li>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mx-2" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M8.293 4.293a1 1 0 011.414 0L12 7.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </li>
+                <li><a href="/viewcourse/<%= ChapterId.CourseId %>/" class="text-blue-500 hover:underline">Course</a>
+                </li>
+                <li>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mx-2" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M8.293 4.293a1 1 0 011.414 0L12 7.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </li>
+                <li class="text-gray-500">Chapter</li>
+            </ul>
+        </div>
+    </nav>
 
-    <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-        <% if (user.isAdmin) { %>
+    <div class="container mx-auto py-8">
+        <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+            <h6 class="text-sm sm:text-3xl font-bold text-center text-gray-900 mt-6 mb-4">
+                <%= ChapterId.title %>
+            </h6>
+            
+                        <% if (user.isAdmin) { %>
             <a href="/viewcourse/<%= ChapterId.CourseId %>/chapter/<%= ChapterId.id %>/page/new/">
                 <button type="button"
                     class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
-                    Create New Page 
+                    Create New Page
                 </button>
             </a>
-        <% } %>
-        
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
-            <% allPage.forEach(page => { %>
+            <% } %>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
+                <% allPage.forEach(page => { %>
                 <% if (Number(ChapterId.id) === page.dataValues.ChapterId) { %>
-                    <div class="bg-white overflow-hidden shadow-lg rounded-lg">
-                        <div class="p-4 relative">
-                            <a href="/viewcourse/<%= ChapterId.CourseId %>/chapter/<%= ChapterId.id %>/fullpage/<%= page.dataValues.id %>">              
-
+                <div class="bg-white overflow-hidden shadow-lg rounded-lg">
+                    <div class="p-4 relative">
+                        <a href="/viewcourse/<%= ChapterId.CourseId %>/chapter/<%= ChapterId.id %>/fullpage/<%= page.dataValues.id %>">
                             <button type="button"
                                 class="w-full focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
-                                <%= page.dataValues.content.slice(0, 100) + (page.dataValues.content.length > 100 ? '...' : '') %>
+                                <%- page.dataValues.content.slice(0, 100) + (page.dataValues.content.length > 100 ? '...' : '') %>
                             </button>
                         </a>
-                            <div class="hidden absolute top-0 left-full bg-white border border-gray-300 p-2 rounded shadow-lg">
-                                <%= page.dataValues.content %>
-                            </div>
+                        <div
+                            class="hidden absolute top-0 left-full bg-white border border-gray-300 p-2 rounded shadow-lg">
+                            <%- page.dataValues.content %>
                         </div>
-                        <% if(!user.isAdmin) { %>
-                        <div class="p-4">
-                            <% if(allMyPage.some(mypage => mypage.dataValues.PageId === page.dataValues.id)) { %>
-                            <button type="button" id="markasComplete-<%= page.dataValues.id %> "
-                                 onclick="updateComplete(<%= page.dataValues.id, %>,true,<%= ChapterId.CourseId %> )"
-                                class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring focus:border-green-300">
-                                Completed
-                            </button>
-                            <% } else { %>
-                                <button type="button" id="markasComplete-<%= page.dataValues.id %> "
-                                    onclick="updateComplete(<%= page.dataValues.id, %>,false,<%= ChapterId.CourseId %> )"
-                                   class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring focus:border-green-300">
-                                   Mark As Complete
-                               </button>
-                               <% } %>
-                        </div>
-                        <% } %>
-
                     </div>
+                    <% if(!user.isAdmin) { %>
+                    <div class="p-4">
+                        <% if(allMyPage.some(mypage => mypage.dataValues.PageId === page.dataValues.id)) { %>
+                        <button type="button" id="markasComplete-<%= page.dataValues.id %> "
+                            onclick="updateComplete(<%= page.dataValues.id, %>,true,<%= ChapterId.CourseId %> )"
+                            class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring focus:border-green-300">
+                            Completed
+                        </button>
+                        <% } else { %>
+                        <button type="button" id="markasComplete-<%= page.dataValues.id %> "
+                            onclick="updateComplete(<%= page.dataValues.id, %>,false,<%= ChapterId.CourseId %> )"
+                            class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring focus:border-green-300">
+                            Mark As Complete
+                        </button>
+                        <% } %>
+                    </div>
+                    <% } %>
+                </div>
                 <% } %>
-            <% }); %>
+                <% }); %>
+            </div>
         </div>
     </div>
 
 </body>
 
 </html>
-

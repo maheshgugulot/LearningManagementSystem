@@ -7,7 +7,20 @@
 
     <title>Content</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.2/purify.min.js"></script>
+
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // Fetch the content from the server or wherever it's stored
+    const contentFromServer = '<%= pageContent.dataValues.content %>';
+
+    // Sanitize the content using DOMPurify
+    const sanitizedContent = DOMPurify.sanitize(contentFromServer);
+
+    // Render the sanitized content on the page
+    document.getElementById('contentContainer').innerHTML = sanitizedContent;
+});
+
             window.addEventListener('pageshow', function(event) {
         if (event.persisted) {
             window.location.reload();
@@ -39,13 +52,39 @@
 
 </head>
 <body>
+    <nav class="bg-white shadow-sm py-4 px-6">
+        <div class="container mx-auto">
+            <ul class="flex items-center space-x-2 text-sm">
+                <li><a href="/home" class="text-blue-500 hover:underline">Home</a></li>
+                <li>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mx-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.293 4.293a1 1 0 011.414 0L12 7.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </li>
+                <li><a href="/viewcourse/<%= CourseId %>/" class="text-blue-500 hover:underline">Course</a></li>
+                <li>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mx-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.293 4.293a1 1 0 011.414 0L12 7.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </li>
+                <li><a href="/viewcourse/<%= CourseId %>/chapter-page/<%= ChapterId %>/" class="text-blue-500 hover:underline">Chapter</a></li>
+                <li>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mx-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.293 4.293a1 1 0 011.414 0L12 7.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </li>
+                <li class="text-gray-500">Page</li>
+            </ul>
+        </div>
+    </nav>
 
+    <div class="container mx-auto py-8">
     <section class="bg-white dark:bg-gray-900">
         <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
             <div class="max-w-screen-lg text-gray-500 sm:text-lg dark:text-gray-400">
                 <h2 class="mb-4 text-4xl tracking-tight font-bold text-gray-900 dark:text-white">Chapter : <%= ChapterName.dataValues.title %> </h2>
                 <span class="font-extrabold"> Description : <%= ChapterName.dataValues.description %> </span> 
-                <p class="mb-4 font-light"><%= pageContent.dataValues.content %> </p>
+                <p class="mb-4 font-light"><%- pageContent.dataValues.content %> </p>
                 <% if(!user.isAdmin) { %>
 
                 <div class="p-4">
@@ -69,6 +108,7 @@
             </div>
         </div>
       </section>
+      </div>
   
 </body>
 </html>

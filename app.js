@@ -58,6 +58,9 @@ passport.use(
     (username, password, done) => {
       User.findOne({ where: { email: username } })
         .then(async (user) => {
+          if (!user) {
+            return done(null, false, { message: "User not found" });
+          }
           const result = await bcrypt.compare(password, user.password);
           if (result) return done(null, user);
           else return done(null, false, { message: "Invalid password" });
@@ -228,6 +231,8 @@ app.get(
       });
       if (req.accepts("html")) {
         res.render("pagecontent", {
+          CourseId: req.params.CourseId,
+          ChapterId: req.params.ChapterId,
           pageContent,
           pageContentCompleted,
           ChapterName,

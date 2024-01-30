@@ -7,6 +7,21 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body>
+    <nav class="bg-white shadow-sm py-4 px-6">
+        <div class="container mx-auto">
+            <ul class="flex items-center space-x-2 text-sm">
+                <li><a href="/home" class="text-blue-500 hover:underline">Home</a></li>
+                <li>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mx-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.293 4.293a1 1 0 011.414 0L12 7.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </li>
+                <li class="text-gray-500">Change Password</li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mx-auto py-8">
     <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
 
         <form class="max-w-sm mx-auto" action="/change" method="post">
@@ -40,6 +55,7 @@
                     <% } %>
                 <% } %>
                 
+    </div>
     </div>
 </body>
 </html>
