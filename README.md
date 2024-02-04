@@ -1,14 +1,13 @@
-
 # Learning Management System (LMS)
 
 The Learning Management System (LMS) is a web application built using Express.js and Sequelize , providing functionalities for educators to create courses, chapters, and pages, and for students to enroll in courses, view content, and track progress.
 
-
 ## Introduction
+
 The Learning Management System (LMS) is designed to facilitate online learning by allowing educators to create courses, chapters, and pages, and students to enroll in courses, access course content, mark chapters as complete, and track their progress.
 
-
 ## Features
+
 Educator Features:
 
 Create courses with descriptions.
@@ -22,6 +21,7 @@ View chapters and pages of enrolled courses.
 Mark chapters as complete.
 
 ## Installation
+
 To run the LMS locally, follow these steps:
 
 Clone the repository: git clone `https://github.com/maheshgugulot/LearningManagementSystem`
@@ -30,8 +30,8 @@ Install dependencies: npm install
 Start the application: npm start
 
 ## Usage
-Once the application is running, access it in your web browser at `http://localhost:3000.`
 
+Once the application is running, access it in your web browser at `http://localhost:3000.`
 
 ## Routes
 
