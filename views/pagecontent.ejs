@@ -10,37 +10,28 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.2/purify.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-    // Fetch the content from the server or wherever it's stored
-    const contentFromServer = '<%= pageContent.dataValues.content %>';
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
 
-    // Sanitize the content using DOMPurify
-    const sanitizedContent = DOMPurify.sanitize(contentFromServer);
-
-    // Render the sanitized content on the page
-    document.getElementById('contentContainer').innerHTML = sanitizedContent;
-});
-
-            window.addEventListener('pageshow', function(event) {
-        if (event.persisted) {
-            window.location.reload();
-        }
-    });
         var token = document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-        function updateComplete(id, completed,CourseId) {
+        function updateComplete(id, completed, CourseId) {
             console.log(id);
             console.log(CourseId)
-            console.log(completed)
             fetch(`/markAsComplete/${id}`, {
-                method: "post",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    completed: !completed,
-                    CourseId : CourseId,
-                    "_csrf": token
+                    method: "post",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        completed: !completed,
+                        CourseId: CourseId,
+                        "_csrf": token
 
+                    })
                 })
-            })
                 .then((res) => {
                     if (res.ok) {
                         window.location.reload();
@@ -85,10 +76,11 @@
                 <h2 class="mb-4 text-4xl tracking-tight font-bold text-gray-900 dark:text-white">Chapter : <%= ChapterName.dataValues.title %> </h2>
                 <span class="font-extrabold"> Description : <%= ChapterName.dataValues.description %> </span> 
                 <p class="mb-4 font-light"><%- pageContent.dataValues.content %> </p>
+                <p class="mb-4 font-light"><%= b %> </p>
                 <% if(!user.isAdmin) { %>
 
                 <div class="p-4">
-                    <% if(pageContentCompleted) { %>
+                    <% if(b) { %>
                     <button type="button" id="markasComplete-<%= pageContent.dataValues.id %>"
                         onclick="updateComplete(<%= pageContent.dataValues.id %>,true ,<%= ChapterName.dataValues.CourseId %> )"
                         class="cursor-pointer flex space-x-2 rounded btn-default text-base items-center justify-center w-full font-semibold p-3 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focusColor-500 curriculum-overlay__learn-submit-btn hover:bg-purple-100">
@@ -97,7 +89,7 @@
                 </button>
                 <% } else { %>
                     <button type="button" id="markasComplete-<%= pageContent.dataValues.id %>"
-                        onclick="updateComplete(<%= pageContent.dataValues.id %>,false ,<%= ChapterName.dataValues.CourseId %> )"
+                        onclick="updateComplete(<%= pageContent.dataValues.id %>,false ,<%= CourseId %> )"
                         class="cursor-pointer flex space-x-2 rounded btn-default text-base items-center justify-center w-full font-semibold p-3 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focusColor-500 curriculum-overlay__learn-submit-btn hover:bg-purple-100">
                     <span class="w-2 h-2 inline-block rounded-full bg-blue-400"></span>
                     <span>Mark as Complete</span>
