@@ -165,6 +165,12 @@ app.post("/users", async (request, response) => {
   console.log("admin" + request.body.isAdmin);
   console.log("admin" + isAdminChecked);
   try {
+    const existingUser = await User.findOne({ email: request.body.email });
+    console.log("existing" + existingUser);
+    if (existingUser.email === null) {
+      request.flash("error", "User with this email already exists.");
+      return response.redirect("/signup"); // Redirect to signup page
+    }
     const user = await User.create({
       firstName: request.body.firstName,
       lastName: request.body.lastName,
@@ -224,8 +230,12 @@ app.get(
     try {
       const pageContent = await Page.findByPk(req.params.id);
       const pageContentCompleted = await UserPage.findOne({
-        where: { PageId: req.params.id },
+        where: { PageId: req.params.id, UserId: req.user.id },
       });
+      var b = true;
+      if (pageContentCompleted === null) {
+        b = false;
+      }
       const ChapterName = await Chapter.findOne({
         where: { id: pageContent.ChapterId },
       });
@@ -234,7 +244,7 @@ app.get(
           CourseId: req.params.CourseId,
           ChapterId: req.params.ChapterId,
           pageContent,
-          pageContentCompleted,
+          b,
           ChapterName,
           user: req.user,
           csrfToken: req.csrfToken(),
