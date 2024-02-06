@@ -76,9 +76,7 @@
                 <h2 class="mb-4 text-4xl tracking-tight font-bold text-gray-900 dark:text-white">Chapter : <%= ChapterName.dataValues.title %> </h2>
                 <span class="font-extrabold"> Description : <%= ChapterName.dataValues.description %> </span> 
                 <p class="mb-4 font-light"><%- pageContent.dataValues.content %> </p>
-                <p class="mb-4 font-light"><%= b %> </p>
                 <% if(!user.isAdmin) { %>
-
                 <div class="p-4">
                     <% if(b) { %>
                     <button type="button" id="markasComplete-<%= pageContent.dataValues.id %>"
