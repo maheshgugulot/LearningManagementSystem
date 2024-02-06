@@ -33,6 +33,17 @@ describe("Todo Application", function () {
   test("GET /home should redirect to login page when user is not authenticated", async () => {
     await request(app).get("/home").expect(302).expect("Location", "/login");
   });
+  test("GET / should return 200 and render home page", async () => {
+    await request(app)
+      .get("/")
+      .expect(200)
+      .expect("Content-Type", /html/)
+      .then((response) => {
+        expect(response.text).toContain("Learning Management System");
+        expect(response.text).toContain("Sign up");
+        expect(response.text).toContain("Sign in");
+      });
+  });
 
   test("GET /signout should log out a user", async () => {
     await User.create({
