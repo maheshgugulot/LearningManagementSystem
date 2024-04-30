@@ -167,7 +167,7 @@ app.post("/users", async (request, response) => {
   try {
     const existingUser = await User.findOne({ email: request.body.email });
     console.log("existing" + existingUser);
-    if (existingUser.email === null) {
+    if (existingUser) {
       request.flash("error", "User with this email already exists.");
       return response.redirect("/signup"); // Redirect to signup page
     }
