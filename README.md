@@ -1,4 +1,4 @@
-# Learning Management System  [Live](https://lms-ya53.onrender.com)
+# Learning Management System [Live](https://lms-ya53.onrender.com)
 
 The Learning Management System (LMS) is a web application built using Express.js and Sequelize , providing functionalities for educators to create courses, chapters, and pages, and for students to enroll in courses, view content, and track progress.
 

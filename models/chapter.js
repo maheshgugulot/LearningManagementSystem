@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Chapter.belongsTo(models.Course);
       Chapter.hasMany(models.Page);
-      // define association here
+      // define association h9+ere
     }
     static addChapter({ title, description, CourseId }) {
       return this.create({

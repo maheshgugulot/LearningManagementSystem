@@ -85,6 +85,7 @@ passport.deserializeUser((id, done) => {
     });
 });
 app.get("/", async (req, res) => {
+  // app.get("/",async (req,res)=>)
   if (req.isAuthenticated()) {
     return res.redirect("/home");
   }
@@ -167,7 +168,7 @@ app.post("/users", async (request, response) => {
   try {
     const existingUser = await User.findOne({ email: request.body.email });
     console.log("existing" + existingUser);
-    console.log("existing" + existingUser.email);
+    // console.log("existing" + existingUser.email);
     if (existingUser && existingUser.email == request.body.email) {
       request.flash("error", "User with this email already exists.");
       return response.redirect("/signup");
